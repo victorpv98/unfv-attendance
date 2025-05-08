@@ -1,61 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Asistencia QR - UNFV
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?style=for-the-badge&logo=php)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14.0-336791?style=for-the-badge&logo=postgresql)
 
-## About Laravel
+Sistema de gestión de asistencia mediante códigos QR para la Universidad Nacional Federico Villarreal. Permite a los profesores registrar la asistencia de alumnos a sus clases utilizando escaneo de códigos QR, facilitando el proceso de control de asistencia y generando reportes automáticos.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Características
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Gestión de Facultades, Cursos y Horarios**: Administración completa de la estructura académica
+- **Registro de Profesores y Estudiantes**: Control de usuarios con diferentes roles y permisos
+- **Generación de Códigos QR**: Cada estudiante recibe un código QR único para su identificación
+- **Escaneo de Asistencia**: Interfaz móvil para que profesores escaneen los códigos QR de los estudiantes
+- **Reportes de Asistencia**: Visualización y exportación de reportes de asistencia por curso y fecha
+- **Panel de Administración**: Gestión centralizada de todos los aspectos del sistema
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tecnologías Utilizadas
 
-## Learning Laravel
+- **Laravel 12**: Framework backend del proyecto
+- **PHP 8.4**: Lenguaje de programación base
+- **PostgreSQL**: Sistema de base de datos relacional
+- **Bootstrap**: Framework CSS para el diseño responsive
+- **HTML5-QRCode**: Librería para el escaneo de códigos QR
+- **SimpleSoftwareIO/simple-qrcode**: Librería para la generación de códigos QR
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Requisitos del Sistema
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 8.4 o superior
+- Composer
+- PostgreSQL 14.0 o superior
+- Node.js y NPM (para compilar assets)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalación
 
-## Laravel Sponsors
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/victorpv98/unfv-attendance.git
+   cd unfv-attendance
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Instalar dependencias**
+   ```bash
+   composer install
+   npm install
+   ```
 
-### Premium Partners
+3. **Configurar variables de entorno**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+4. **Configurar base de datos**
+   
+   Edita el archivo `.env` con los detalles de tu conexión PostgreSQL:
+   ```
+   DB_CONNECTION=pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_DATABASE=unfv_attendance
+   DB_USERNAME=tu_usuario
+   DB_PASSWORD=tu_contraseña
+   ```
 
-## Contributing
+5. **Ejecutar migraciones y seeders**
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+6. **Compilar assets**
+   ```bash
+   npm run build
+   ```
 
-## Code of Conduct
+7. **Iniciar servidor de desarrollo**
+   ```bash
+   php artisan serve
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+8. **Acceder al sistema**
+   
+   Abre tu navegador y visita `http://localhost:8000`
 
-## Security Vulnerabilities
+## Estructura del Sistema
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Roles de Usuario
 
-## License
+- **Administrador**: Gestión completa del sistema (facultades, cursos, profesores, estudiantes)
+- **Profesor**: Gestión de asistencias en sus cursos asignados
+- **Estudiante**: Visualización de su código QR y asistencias registradas
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Módulos Principales
+
+- **Gestión de Facultades**: Administración de las facultades de la universidad
+- **Gestión de Cursos**: Configuración de cursos, asignación a facultades
+- **Gestión de Horarios**: Definición de horarios para cursos y profesores
+- **Gestión de Estudiantes**: Administración de perfiles de estudiantes
+- **Generación de QR**: Creación y regeneración de códigos QR para estudiantes
+- **Registro de Asistencia**: Escaneo de códigos QR en tiempo real
+- **Reportes**: Visualización y exportación de datos de asistencia
+
+## Credenciales por Defecto
+
+Para acceder al sistema por primera vez, utiliza:
+
+- **Administrador**
+  - Usuario: admin@unfv.edu.pe
+  - Contraseña: 1234
+
+
+
+---
+
+Desarrollado para la Universidad Nacional Federico Villarreal - 2025
