@@ -5,77 +5,75 @@
 @endsection
 
 @section('content')
-<div class="container">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Gestión de Profesores</h1>
-        <a href="{{ route('teachers.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus fa-sm"></i> Nuevo Profesor
-        </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fs-1 fw-semibold">Gestión de Profesores</h2>
+    <a href="{{ route('admin.teachers.create') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Nuevo Profesor
+    </a>
+</div>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <span>{{ session('success') }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+@endif
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <span>{{ session('error') }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Lista de Profesores</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
+<div class="card shadow border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">ID</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Nombre</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Email</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Código</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Facultad</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Especialidad</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($teachers as $teacher)
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Código</th>
-                            <th>Facultad</th>
-                            <th>Especialidad</th>
-                            <th>Acciones</th>
+                            <td>{{ $teacher->id }}</td>
+                            <td class="fw-medium">{{ $teacher->user->name }}</td>
+                            <td class="text-muted">{{ $teacher->user->email }}</td>
+                            <td class="text-muted">{{ $teacher->code }}</td>
+                            <td class="text-muted">{{ $teacher->faculty->name }}</td>
+                            <td class="text-muted">{{ $teacher->specialty }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('admin.teachers.edit', $teacher) }}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+                                <a href="{{ route('admin.teachers.show', $teacher) }}" class="btn btn-sm btn-outline-info me-1">Ver</a>
+                                <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST" class="d-inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este profesor?')">Eliminar</button>
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($teachers as $teacher)
-                            <tr>
-                                <td>{{ $teacher->id }}</td>
-                                <td>{{ $teacher->user->name }}</td>
-                                <td>{{ $teacher->user->email }}</td>
-                                <td>{{ $teacher->code }}</td>
-                                <td>{{ $teacher->faculty->name }}</td>
-                                <td>{{ $teacher->specialty }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('teachers.edit', $teacher) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{{ route('teachers.show', $teacher) }}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <form action="{{ route('teachers.destroy', $teacher) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este profesor?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center">No hay profesores registrados</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            {{ $teachers->links() }}
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No hay profesores registrados</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+        
+        @if(isset($teachers) && $teachers->hasPages())
+            <div class="mt-3">
+                {{ $teachers->links() }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

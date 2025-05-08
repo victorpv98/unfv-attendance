@@ -5,92 +5,93 @@
 @endsection
 
 @section('content')
-<div class="container">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Gestión de Horarios</h1>
-        <a href="{{ route('schedules.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus fa-sm"></i> Nuevo Horario
-        </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fs-1 fw-semibold">Gestión de Horarios</h2>
+    <a href="{{ route('admin.schedules.create') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Nuevo Horario
+    </a>
+</div>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <span>{{ session('success') }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+@endif
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <span>{{ session('error') }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Lista de Horarios</h6>
-            <div class="ml-auto">
-                <form action="{{ route('schedules.index') }}" method="GET" class="d-flex">
-                    <select name="semester" class="form-select me-2">
-                        <option value="">Todos los semestres</option>
-                        @foreach($semesters as $sem)
-                            <option value="{{ $sem }}" {{ request('semester') == $sem ? 'selected' : '' }}>
-                                {{ $sem }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <button type="submit" class="btn btn-primary">Filtrar</button>
-                </form>
-            </div>
+<div class="card shadow border-0">
+    <div class="card-body">
+        <div class="mb-3 d-flex justify-content-end">
+            <form action="{{ route('admin.schedules.index') }}" method="GET" class="d-flex align-items-center">
+                <select name="semester" class="form-select me-2">
+                    <option value="">Todos los semestres</option>
+                    @foreach($semesters as $sem)
+                        <option value="{{ $sem }}" {{ request('semester') == $sem ? 'selected' : '' }}>
+                            {{ $sem }}
+                        </option>
+                    @endforeach
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    Filtrar
+                </button>
+            </form>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">ID</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Curso</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Profesor</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Aula</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Día</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Horario</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small">Semestre</th>
+                        <th scope="col" class="fw-medium text-uppercase text-muted small text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($schedules as $schedule)
                         <tr>
-                            <th>ID</th>
-                            <th>Curso</th>
-                            <th>Profesor</th>
-                            <th>Aula</th>
-                            <th>Día</th>
-                            <th>Horario</th>
-                            <th>Semestre</th>
-                            <th>Acciones</th>
+                            <td>{{ $schedule->id }}</td>
+                            <td class="fw-medium">{{ $schedule->course->name }}</td>
+                            <td class="text-muted">{{ $schedule->teacher->user->name }}</td>
+                            <td class="text-muted">{{ $schedule->classroom }}</td>
+                            <td class="text-muted">{{ __($schedule->day) }}</td>
+                            <td class="text-muted">{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
+                            <td class="text-muted">{{ $schedule->semester }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('admin.schedules.edit', $schedule) }}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+                                <a href="{{ route('admin.schedules.show', $schedule) }}" class="btn btn-sm btn-outline-info me-1">Ver</a>
+                                <form action="{{ route('admin.schedules.destroy', $schedule) }}" method="POST" class="d-inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este horario?')">Eliminar</button>
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($schedules as $schedule)
-                            <tr>
-                                <td>{{ $schedule->id }}</td>
-                                <td>{{ $schedule->course->name }}</td>
-                                <td>{{ $schedule->teacher->user->name }}</td>
-                                <td>{{ $schedule->classroom }}</td>
-                                <td>{{ __($schedule->day) }}</td>
-                                <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
-                                <td>{{ $schedule->semester }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('schedules.edit', $schedule) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{{ route('schedules.show', $schedule) }}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <form action="{{ route('schedules.destroy', $schedule) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este horario?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center">No hay horarios registrados</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            {{ $schedules->links() }}
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No hay horarios registrados</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+        
+        @if(isset($schedules) && $schedules->hasPages())
+            <div class="mt-3">
+                {{ $schedules->links() }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

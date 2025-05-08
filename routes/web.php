@@ -28,7 +28,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Rutas para estudiantes
-    Route::middleware(['checkRole:student'])->prefix('student')->group(function () {
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':student'])->prefix('student')->group(function () {
         // QR
         Route::get('/my-qr', [QrController::class, 'myQr'])->name('students.my-qr');
         Route::get('/qr-image/{student}', [QrController::class, 'qrImage'])->name('students.qr-image');
@@ -41,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Rutas para profesores
-    Route::middleware(['checkRole:teacher'])->prefix('teacher')->group(function () {
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':teacher'])->prefix('teacher')->group(function () {
         // Horarios y QR
         Route::get('/my-schedules', [TeacherController::class, 'mySchedules'])->name('teachers.my-schedules');
         Route::get('/scan-qr/{schedule}', [TeacherController::class, 'scanQr'])->name('teachers.scan-qr');
@@ -54,27 +54,67 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Rutas para administradores
-    Route::middleware(['checkRole:admin'])->prefix('admin')->group(function () {
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':admin'])->prefix('admin')->group(function () {
         // Dashboard del administrador
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
         
         // Gestión de facultades
-        Route::resource('faculties', FacultyController::class);
+        Route::resource('faculties', FacultyController::class)->names([
+            'index' => 'admin.faculties.index',
+            'create' => 'admin.faculties.create',
+            'store' => 'admin.faculties.store',
+            'show' => 'admin.faculties.show',
+            'edit' => 'admin.faculties.edit',
+            'update' => 'admin.faculties.update',
+            'destroy' => 'admin.faculties.destroy',
+        ]);
         
         // Gestión de cursos
-        Route::resource('courses', CourseController::class);
-        Route::get('/courses/{course}/students', [CourseController::class, 'students'])->name('courses.students');
-        Route::post('/courses/{course}/enroll', [CourseController::class, 'enrollStudents'])->name('courses.enroll');
-        Route::delete('/courses/{course}/unenroll/{student}', [CourseController::class, 'unenrollStudent'])->name('courses.unenroll');
+        Route::resource('courses', CourseController::class)->names([
+            'index' => 'admin.courses.index',
+            'create' => 'admin.courses.create',
+            'store' => 'admin.courses.store',
+            'show' => 'admin.courses.show',
+            'edit' => 'admin.courses.edit',
+            'update' => 'admin.courses.update',
+            'destroy' => 'admin.courses.destroy',
+        ]);
+        Route::get('/courses/{course}/students', [CourseController::class, 'students'])->name('admin.courses.students');
+        Route::post('/courses/{course}/enroll', [CourseController::class, 'enrollStudents'])->name('admin.courses.enroll');
+        Route::delete('/courses/{course}/unenroll/{student}', [CourseController::class, 'unenrollStudent'])->name('admin.courses.unenroll');
         
-        // Gestión de profesores
-        Route::resource('teachers', TeacherController::class);
+        // Gestión de profesores - CORREGIDO: Agregamos nombres para las rutas
+        Route::resource('teachers', TeacherController::class)->names([
+            'index' => 'admin.teachers.index',
+            'create' => 'admin.teachers.create',
+            'store' => 'admin.teachers.store',
+            'show' => 'admin.teachers.show',
+            'edit' => 'admin.teachers.edit',
+            'update' => 'admin.teachers.update',
+            'destroy' => 'admin.teachers.destroy',
+        ]);
         
         // Gestión de estudiantes
-        Route::resource('students', StudentController::class);
+        Route::resource('students', StudentController::class)->names([
+            'index' => 'admin.students.index',
+            'create' => 'admin.students.create',
+            'store' => 'admin.students.store',
+            'show' => 'admin.students.show',
+            'edit' => 'admin.students.edit',
+            'update' => 'admin.students.update',
+            'destroy' => 'admin.students.destroy',
+        ]);
         
         // Gestión de horarios
-        Route::resource('schedules', ScheduleController::class);
+        Route::resource('schedules', ScheduleController::class)->names([
+            'index' => 'admin.schedules.index',
+            'create' => 'admin.schedules.create',
+            'store' => 'admin.schedules.store',
+            'show' => 'admin.schedules.show',
+            'edit' => 'admin.schedules.edit',
+            'update' => 'admin.schedules.update',
+            'destroy' => 'admin.schedules.destroy',
+        ]);
         
         // Reportes
         Route::get('/reports/attendance', [AttendanceController::class, 'adminReport'])->name('admin.reports.attendance');

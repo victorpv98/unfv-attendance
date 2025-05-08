@@ -10,8 +10,18 @@ class Schedule extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_id', 'teacher_id', 'classroom', 'day', 
-        'start_time', 'end_time', 'semester'
+        'course_id',
+        'teacher_id',
+        'classroom',
+        'day',
+        'start_time',
+        'end_time',
+        'semester'
+    ];
+
+    protected $casts = [
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
     ];
 
     public function course()

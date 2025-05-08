@@ -5,77 +5,75 @@
 @endsection
 
 @section('content')
-<div class="container">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Gestión de Cursos</h1>
-        <a href="{{ route('courses.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus fa-sm"></i> Nuevo Curso
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fs-1 fw-semibold">Gestión de Cursos</h2>
+        <a href="{{ route('admin.courses.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Nuevo Curso
         </a>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <span>{{ session('success') }}</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Lista de Cursos</h6>
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <span>{{ session('error') }}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+    @endif
+
+    <div class="card shadow border-0">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Código</th>
-                            <th>Facultad</th>
-                            <th>Créditos</th>
-                            <th>Ciclo</th>
-                            <th>Acciones</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">ID</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Nombre</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Código</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Facultad</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Créditos</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Ciclo</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($courses as $course)
                             <tr>
                                 <td>{{ $course->id }}</td>
-                                <td>{{ $course->name }}</td>
-                                <td>{{ $course->code }}</td>
-                                <td>{{ $course->faculty->name }}</td>
-                                <td>{{ $course->credits }}</td>
-                                <td>{{ $course->cycle }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('courses.edit', $course) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{{ route('courses.show', $course) }}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <form action="{{ route('courses.destroy', $course) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este curso?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                <td class="fw-medium">{{ $course->name }}</td>
+                                <td class="text-muted">{{ $course->code }}</td>
+                                <td class="text-muted">{{ $course->faculty->name }}</td>
+                                <td class="text-muted">{{ $course->credits }}</td>
+                                <td class="text-muted">{{ $course->cycle }}</td>
+                                <td class="text-end">
+                                    <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+                                    <a href="{{ route('admin.courses.show', $course) }}" class="btn btn-sm btn-outline-info me-1">Ver</a>
+                                    <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" class="d-inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este curso?')">Eliminar</button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">No hay cursos registrados</td>
+                                <td colspan="7" class="text-center text-muted">No hay cursos registrados</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
             
-            {{ $courses->links() }}
+            @if(isset($courses) && $courses->hasPages())
+                <div class="mt-3">
+                    {{ $courses->links() }}
+                </div>
+            @endif
         </div>
     </div>
-</div>
 @endsection
