@@ -83,6 +83,29 @@ Sistema de gestión de asistencia mediante códigos QR para la Universidad Nacio
    
    Abre tu navegador y visita `http://localhost:8000`
 
+## Despliegue del Sistema en un dispositivo movil con red local
+
+1. **Verificar la IP local(WiFi)**
+   ```bash
+   ifconfig | grep "inet " | grep -v 127.0.0.1
+   ```
+   ```bash
+   ifconfig en0 | grep "inet "
+   ```
+
+2. **Permisos del navegador movil**
+   
+   Para Chrome en Android:
+   1. Abre Chrome y navega a chrome://flags
+   2. Busca "Insecure origins treated as secure"
+   3. Activa esta opción y agrega tu URL local (por ejemplo, http://[TU_IP]:8000)
+   4. Reinicia Chrome
+
+3. **Movil Login**
+
+   Accede a http://[TU_IP]:8000 desde tu móvil 
+
+
 ## Estructura del Sistema
 
 ### Roles de Usuario
@@ -97,6 +120,7 @@ Sistema de gestión de asistencia mediante códigos QR para la Universidad Nacio
 - **Gestión de Cursos**: Configuración de cursos, asignación a facultades
 - **Gestión de Horarios**: Definición de horarios para cursos y profesores
 - **Gestión de Estudiantes**: Administración de perfiles de estudiantes
+- **Gestión de Matricula**: Administración de los estudiantes matriculados
 - **Generación de QR**: Creación y regeneración de códigos QR para estudiantes
 - **Registro de Asistencia**: Escaneo de códigos QR en tiempo real
 - **Reportes**: Visualización y exportación de datos de asistencia

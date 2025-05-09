@@ -5,142 +5,167 @@
 @endsection
 
 @section('content')
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="mb-6 flex justify-between items-center">
-            <div>
-                <h2 class="text-2xl font-semibold mb-2">Historial de Asistencias</h2>
-                <p class="text-gray-600">Registro de tus asistencias a clases</p>
-            </div>
-            
-            <div>
-                <form action="{{ route('students.my-attendances') }}" method="GET" class="flex items-end space-x-4">
-                    <div>
-                        <label for="course_id" class="block text-sm font-medium text-gray-700 mb-1">Curso</label>
-                        <select id="course_id" name="course_id" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Todos los cursos</option>
-                            @foreach($courses as $course)
-                                <option value="{{ $course->id }}" {{ request('course_id') == $course->id ? 'selected' : '' }}>
-                                    {{ $course->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="month" class="block text-sm font-medium text-gray-700 mb-1">Mes</label>
-                        <select id="month" name="month" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="">Todos los meses</option>
-                            @foreach($months as $key => $month)
-                                <option value="{{ $key }}" {{ request('month') == $key ? 'selected' : '' }}>
-                                    {{ $month }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
-                        Filtrar
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-green-50 p-4 rounded-lg">
-                <h3 class="text-lg font-medium text-green-800 mb-2">Presentes</h3>
-                <p class="text-3xl font-bold text-green-800">{{ $summary['present'] ?? 0 }}</p>
-                <p class="text-sm text-green-600">{{ $summary['presentPercentage'] ?? 0 }}% de asistencia</p>
-            </div>
-            
-            <div class="bg-yellow-50 p-4 rounded-lg">
-                <h3 class="text-lg font-medium text-yellow-800 mb-2">Tardanzas</h3>
-                <p class="text-3xl font-bold text-yellow-800">{{ $summary['late'] ?? 0 }}</p>
-                <p class="text-sm text-yellow-600">{{ $summary['latePercentage'] ?? 0 }}% de tardanzas</p>
-            </div>
-            
-            <div class="bg-red-50 p-4 rounded-lg">
-                <h3 class="text-lg font-medium text-red-800 mb-2">Ausencias</h3>
-                <p class="text-3xl font-bold text-red-800">{{ $summary['absent'] ?? 0 }}</p>
-                <p class="text-sm text-red-600">{{ $summary['absentPercentage'] ?? 0 }}% de inasistencia</p>
-            </div>
-        </div>
-
-        @component('components.table')
-            @slot('header')
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Curso</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profesor</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-            @endslot
-
-            @slot('body')
-                @forelse($attendances as $attendance)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ \Carbon\Carbon::parse($attendance->date)->format('d/m/Y') }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $attendance->time }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $attendance->schedule->course->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $attendance->schedule->teacher->user->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span class="px-2 py-1 rounded {{ $attendance->status === 'present' ? 'bg-green-100 text-green-800' : ($attendance->status === 'late' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                {{ $attendance->status === 'present' ? 'Presente' : ($attendance->status === 'late' ? 'Tardanza' : 'Ausente') }}
-                            </span>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No hay asistencias registradas</td>
-                    </tr>
-                @endforelse
-            @endslot
-
-            @if(isset($attendances) && $attendances->hasPages())
-                @slot('pagination')
-                    {{ $attendances->appends(request()->except('page'))->links() }}
-                @endslot
-            @endif
-        @endcomponent
-    </div>
-
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h3 class="text-lg font-semibold mb-4">Resumen de Asistencia por Curso</h3>
-        
-        <div class="grid grid-cols-1 gap-4">
-            @foreach($coursesSummary as $course)
-                <div class="border rounded-lg p-4">
-                    <h4 class="text-lg font-medium mb-2">{{ $course->name }}</h4>
-                    <div class="flex flex-wrap">
-                        <div class="w-full sm:w-1/2 md:w-1/4 p-2">
-                            <p class="text-gray-500 text-sm">Presente: <span class="font-medium text-green-600">{{ $course->present_count ?? 0 }}</span></p>
+    <div class="card shadow border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                <div class="mb-3 mb-md-0">
+                    <h2 class="fs-1 fw-semibold mb-2">Historial de Asistencias</h2>
+                    <p class="text-muted">Registro de tus asistencias a clases</p>
+                </div>
+                
+                <div>
+                    <form action="{{ route('students.my-attendances') }}" method="GET" class="d-flex flex-wrap gap-3 align-items-end">
+                        <div>
+                            <label for="course_id" class="form-label small fw-medium">Curso</label>
+                            <select id="course_id" name="course_id" class="form-select">
+                                <option value="">Todos los cursos</option>
+                                @foreach($courses as $course)
+                                    <option value="{{ $course->id }}" {{ request('course_id') == $course->id ? 'selected' : '' }}>
+                                        {{ $course->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="w-full sm:w-1/2 md:w-1/4 p-2">
-                            <p class="text-gray-500 text-sm">Tardanza: <span class="font-medium text-yellow-600">{{ $course->late_count ?? 0 }}</span></p>
+                        
+                        <div>
+                            <label for="month" class="form-label small fw-medium">Mes</label>
+                            <select id="month" name="month" class="form-select">
+                                <option value="">Todos los meses</option>
+                                @foreach($months as $key => $month)
+                                    <option value="{{ $key }}" {{ request('month') == $key ? 'selected' : '' }}>
+                                        {{ $month }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="w-full sm:w-1/2 md:w-1/4 p-2">
-                            <p class="text-gray-500 text-sm">Ausente: <span class="font-medium text-red-600">{{ $course->absent_count ?? 0 }}</span></p>
-                        </div>
-                        <div class="w-full sm:w-1/2 md:w-1/4 p-2">
-                            <p class="text-gray-500 text-sm">Asistencia: <span class="font-medium">{{ $course->attendance_percentage ?? 0 }}%</span></p>
-                        </div>
-                    </div>
-                    <div class="mt-2 h-6 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="flex h-full">
-                            <div 
-                                class="bg-green-500 h-full" 
-                                style="width: {{ $course->present_percentage ?? 0 }}%">
-                            </div>
-                            <div 
-                                class="bg-yellow-500 h-full" 
-                                style="width: {{ $course->late_percentage ?? 0 }}%">
-                            </div>
-                            <div 
-                                class="bg-red-500 h-full" 
-                                style="width: {{ $course->absent_percentage ?? 0 }}%">
-                            </div>
-                        </div>
+                        
+                        <button type="submit" class="btn btn-secondary">
+                            Filtrar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="bg-success bg-opacity-10 rounded p-3">
+                        <h5 class="text-success fw-medium mb-2">Presentes</h5>
+                        <p class="fs-1 fw-bold text-success mb-0">{{ $summary['present'] ?? 0 }}</p>
+                        <p class="small text-success">{{ $summary['presentPercentage'] ?? 0 }}% de asistencia</p>
                     </div>
                 </div>
-            @endforeach
+                
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="bg-warning bg-opacity-10 rounded p-3">
+                        <h5 class="text-warning fw-medium mb-2">Tardanzas</h5>
+                        <p class="fs-1 fw-bold text-warning mb-0">{{ $summary['late'] ?? 0 }}</p>
+                        <p class="small text-warning">{{ $summary['latePercentage'] ?? 0 }}% de tardanzas</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="bg-danger bg-opacity-10 rounded p-3">
+                        <h5 class="text-danger fw-medium mb-2">Ausencias</h5>
+                        <p class="fs-1 fw-bold text-danger mb-0">{{ $summary['absent'] ?? 0 }}</p>
+                        <p class="small text-danger">{{ $summary['absentPercentage'] ?? 0 }}% de inasistencia</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Fecha</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Hora</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Curso</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Profesor</th>
+                            <th scope="col" class="fw-medium text-uppercase text-muted small">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($attendances as $attendance)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d/m/Y') }}</td>
+                                <td class="text-muted">{{ $attendance->time }}</td>
+                                <td class="fw-medium">{{ $attendance->schedule->course->name }}</td>
+                                <td class="text-muted">{{ $attendance->schedule->teacher->user->name }}</td>
+                                <td>
+                                    <span class="badge rounded-pill {{ $attendance->status === 'present' ? 'bg-success' : ($attendance->status === 'late' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                        {{ $attendance->status === 'present' ? 'Presente' : ($attendance->status === 'late' ? 'Tardanza' : 'Ausente') }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No hay asistencias registradas</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if(isset($attendances) && $attendances->hasPages())
+                <div class="mt-3">
+                    {{ $attendances->appends(request()->except('page'))->links() }}
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Resumen de Asistencia por Curso</h5>
+            
+            <div class="row row-gap-4">
+                @foreach($coursesSummary as $course)
+                    <div class="col-12">
+                        <div class="border rounded p-3">
+                            <h5 class="fw-medium mb-2">{{ $course->name }}</h5>
+                            <div class="row mb-2">
+                                <div class="col-sm-6 col-md-3 mb-2">
+                                    <p class="text-muted small mb-0">Presente: <span class="fw-medium text-success">{{ $course->present_count ?? 0 }}</span></p>
+                                </div>
+                                <div class="col-sm-6 col-md-3 mb-2">
+                                    <p class="text-muted small mb-0">Tardanza: <span class="fw-medium text-warning">{{ $course->late_count ?? 0 }}</span></p>
+                                </div>
+                                <div class="col-sm-6 col-md-3 mb-2">
+                                    <p class="text-muted small mb-0">Ausente: <span class="fw-medium text-danger">{{ $course->absent_count ?? 0 }}</span></p>
+                                </div>
+                                <div class="col-sm-6 col-md-3 mb-2">
+                                    <p class="text-muted small mb-0">Asistencia: <span class="fw-medium">{{ $course->attendance_percentage ?? 0 }}%</span></p>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 1.5rem;">
+                                <div 
+                                    class="progress-bar bg-success" 
+                                    role="progressbar" 
+                                    style="width: {{ $course->present_percentage ?? 0 }}%" 
+                                    aria-valuenow="{{ $course->present_percentage ?? 0 }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                </div>
+                                <div 
+                                    class="progress-bar bg-warning" 
+                                    role="progressbar" 
+                                    style="width: {{ $course->late_percentage ?? 0 }}%" 
+                                    aria-valuenow="{{ $course->late_percentage ?? 0 }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                </div>
+                                <div 
+                                    class="progress-bar bg-danger" 
+                                    role="progressbar" 
+                                    style="width: {{ $course->absent_percentage ?? 0 }}%" 
+                                    aria-valuenow="{{ $course->absent_percentage ?? 0 }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 @endsection

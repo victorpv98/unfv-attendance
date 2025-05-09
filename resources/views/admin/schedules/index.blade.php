@@ -66,11 +66,10 @@
                             <td class="text-muted">{{ $schedule->teacher->user->name }}</td>
                             <td class="text-muted">{{ $schedule->classroom }}</td>
                             <td class="text-muted">{{ __($schedule->day) }}</td>
-                            <td class="text-muted">{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
+                            <td class="text-muted">{{ \Carbon\Carbon::parse($schedule->start_time)->format('g:ia') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('g:ia') }}</td>
                             <td class="text-muted">{{ $schedule->semester }}</td>
                             <td class="text-end">
                                 <a href="{{ route('admin.schedules.edit', $schedule) }}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
-                                <a href="{{ route('admin.schedules.show', $schedule) }}" class="btn btn-sm btn-outline-info me-1">Ver</a>
                                 <form action="{{ route('admin.schedules.destroy', $schedule) }}" method="POST" class="d-inline-block">
                                     @csrf
                                     @method('DELETE')

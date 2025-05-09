@@ -9,9 +9,10 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\QrController;
+use App\Http\Controllers\EnrollmentController;
 use Illuminate\Support\Facades\Auth;
 
-// Ruta principal - redirige al dashboard si está autenticado, o al login si no
+// Ruta principal 
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -83,7 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/courses/{course}/enroll', [CourseController::class, 'enrollStudents'])->name('admin.courses.enroll');
         Route::delete('/courses/{course}/unenroll/{student}', [CourseController::class, 'unenrollStudent'])->name('admin.courses.unenroll');
         
-        // Gestión de profesores - CORREGIDO: Agregamos nombres para las rutas
+        // Gestión de profesores 
         Route::resource('teachers', TeacherController::class)->names([
             'index' => 'admin.teachers.index',
             'create' => 'admin.teachers.create',
@@ -115,6 +116,18 @@ Route::middleware(['auth'])->group(function () {
             'update' => 'admin.schedules.update',
             'destroy' => 'admin.schedules.destroy',
         ]);
+
+        // Gestión de matrículas
+        Route::resource('enrollments', EnrollmentController::class)->except(['show', 'edit', 'update'])->names([
+            'index' => 'admin.enrollments.index',
+            'create' => 'admin.enrollments.create',
+            'store' => 'admin.enrollments.store',
+            'show' => 'admin.schedules.show',
+            'update' => 'admin.schedules.update',
+            'destroy' => 'admin.enrollments.destroy',
+        ]);
+        Route::get('/enrollments/by-course', [EnrollmentController::class, 'byCourse'])->name('admin.enrollments.byCourse');
+        Route::get('/enrollments/by-student', [EnrollmentController::class, 'byStudent'])->name('admin.enrollments.byStudent');
         
         // Reportes
         Route::get('/reports/attendance', [AttendanceController::class, 'adminReport'])->name('admin.reports.attendance');

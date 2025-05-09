@@ -176,7 +176,11 @@ class TeacherController extends Controller
     {
         $teacher = Teacher::where('user_id', auth()->id())->firstOrFail();
         $schedules = $teacher->schedules()->with(['course', 'course.faculty'])->get();
-        return view('teacher.schedules', compact('schedules'));
+        
+        // Obtener semestres únicos o un array vacío si no hay horarios
+        $semesters = $schedules->isEmpty() ? collect() : $schedules->pluck('semester')->unique()->values();
+        
+        return view('teachers.my-schedules', compact('schedules', 'semesters'));
     }
 
     /**
@@ -186,6 +190,11 @@ class TeacherController extends Controller
     {
         $teacher = Teacher::where('user_id', auth()->id())->firstOrFail();
         $schedule = $teacher->schedules()->findOrFail($schedule);
-        return view('teacher.scan-qr', compact('schedule'));
+        $attendances = \App\Models\Attendance::where('schedule_id', $schedule->id)
+            ->whereDate('date', now()->toDateString())
+            ->with(['student.user'])
+            ->orderBy('time', 'desc')
+            ->get();
+        return view('teachers.scan-qr', compact('schedule', 'attendances'));
     }
 }

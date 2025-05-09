@@ -44,12 +44,6 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-lg-6 text-end d-flex align-items-end justify-content-end">
-                    <a href="{{ route('attendance.export', $schedule) }}?date={{ request('date', now()->toDateString()) }}" 
-                       class="btn btn-success">
-                        <i class="fas fa-file-excel"></i> Exportar a Excel
-                    </a>
-                </div>
             </div>
             
             <div class="row mb-4">

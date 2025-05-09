@@ -52,7 +52,6 @@
                             <td class="text-muted">{{ $teacher->specialty }}</td>
                             <td class="text-end">
                                 <a href="{{ route('admin.teachers.edit', $teacher) }}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
-                                <a href="{{ route('admin.teachers.show', $teacher) }}" class="btn btn-sm btn-outline-info me-1">Ver</a>
                                 <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST" class="d-inline-block">
                                     @csrf
                                     @method('DELETE')

@@ -1,98 +1,123 @@
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-blue-100 text-blue-500">
-                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h2 class="font-semibold text-gray-500">Mis Cursos</h2>
-                <p class="text-2xl font-bold">{{ $coursesCount ?? 0 }}</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-green-100 text-green-500">
-                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h2 class="font-semibold text-gray-500">Asistencias</h2>
-                <p class="text-2xl font-bold">{{ $attendanceCount ?? 0 }}</p>
+<div class="row mb-4">
+    <!-- Mis Cursos -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info p-3 me-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold text-muted mb-1">Mis Cursos</h6>
+                        <h2 class="fs-1 fw-bold mb-0">{{ $coursesCount ?? 0 }}</h2>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-red-100 text-red-500">
-                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+    <!-- Asistencias -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success p-3 me-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold text-muted mb-1">Asistencias</h6>
+                        <h2 class="fs-1 fw-bold mb-0">{{ $attendanceCount ?? 0 }}</h2>
+                    </div>
+                </div>
             </div>
-            <div class="ml-4">
-                <h2 class="font-semibold text-gray-500">Faltas</h2>
-                <p class="text-2xl font-bold">{{ $absenceCount ?? 0 }}</p>
+        </div>
+    </div>
+    
+    <!-- Faltas -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger p-3 me-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold text-muted mb-1">Faltas</h6>
+                        <h2 class="fs-1 fw-bold mb-0">{{ $absenceCount ?? 0 }}</h2>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h3 class="text-lg font-semibold mb-4">Clases de Hoy</h3>
-        @if(isset($todaySchedules) && count($todaySchedules) > 0)
-            <ul class="divide-y divide-gray-200">
-                @foreach($todaySchedules as $schedule)
-                    <li class="py-3">
-                        <div class="flex justify-between">
-                            <div>
-                                <h4 class="text-md font-medium">{{ $schedule->course->name }}</h4>
-                                <p class="text-sm text-gray-500">{{ $schedule->classroom }} | {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
-                                <p class="text-sm text-gray-500">Profesor: {{ $schedule->teacher->user->name }}</p>
-                            </div>
-                            <div class="flex items-center">
-                                @if(isset($todayAttendances[$schedule->id]))
-                                    <span class="px-2 py-1 rounded {{ $todayAttendances[$schedule->id]->status === 'present' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                        {{ $todayAttendances[$schedule->id]->status === 'present' ? 'Presente' : 'Tardanza' }}
-                                    </span>
-                                @else
-                                    <span class="px-2 py-1 rounded bg-gray-100 text-gray-800">Pendiente</span>
-                                @endif
-                            </div>
-                        </div>
-                    </li>
-                @endforeach
-            </ul>
-        @else
-            <p class="text-gray-500">No tienes clases programadas para hoy</p>
-        @endif
+<div class="row">
+    <!-- Clases de Hoy -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
+                <h5 class="card-title fw-semibold mb-4">Clases de Hoy</h5>
+                @if(isset($todaySchedules) && count($todaySchedules) > 0)
+                    <ul class="list-group list-group-flush">
+                        @foreach($todaySchedules as $schedule)
+                            <li class="list-group-item px-0 py-3 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="fw-medium mb-1">{{ $schedule->course->name }}</h6>
+                                        <p class="text-muted small mb-1">{{ $schedule->classroom }} | {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
+                                        <p class="text-muted small mb-0">Profesor: {{ $schedule->teacher->user->name }}</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        @if(isset($todayAttendances[$schedule->id]))
+                                            <span class="badge rounded-pill {{ $todayAttendances[$schedule->id]->status === 'present' ? 'bg-success' : 'bg-warning text-dark' }}">
+                                                {{ $todayAttendances[$schedule->id]->status === 'present' ? 'Presente' : 'Tardanza' }}
+                                            </span>
+                                        @else
+                                            <span class="badge rounded-pill bg-secondary">Pendiente</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-muted">No tienes clases programadas para hoy</p>
+                @endif
+            </div>
+        </div>
     </div>
     
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Mi Código QR</h3>
-            <a href="{{ route('students.my-qr') }}" class="text-blue-500 hover:text-blue-700">Ver Completo</a>
-        </div>
-        
-        @if(isset($student) && $student->qr_code)
-            <div class="flex flex-col items-center">
-                <div class="mb-4">
-                    <img src="{{ route('students.qr-image', $student) }}" alt="Mi Código QR" class="w-48 h-48 border p-2 rounded">
+    <!-- Mi Código QR -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title fw-semibold mb-0">Mi Código QR</h5>
+                    <a href="{{ route('students.my-qr') }}" class="text-primary">Ver Completo</a>
                 </div>
-                <p class="text-sm text-gray-500">Muestra este código QR al profesor al inicio de cada clase</p>
+                
+                @if(isset($student) && $student->qr_code)
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="mb-3">
+                            <img src="{{ route('students.qr-image', $student) }}" alt="Mi Código QR" class="border p-2 rounded" style="width: 12rem; height: 12rem;">
+                        </div>
+                        <p class="text-muted small text-center">Muestra este código QR al profesor al inicio de cada clase</p>
+                    </div>
+                @else
+                    <div class="alert alert-warning text-center">
+                        <p class="mb-2">No tienes un código QR asignado. Genera uno para registrar tu asistencia.</p>
+                        <a href="{{ route('students.my-qr') }}" class="btn btn-primary mt-2">
+                            Generar Código QR
+                        </a>
+                    </div>
+                @endif
             </div>
-        @else
-            <div class="bg-yellow-100 p-4 rounded-lg text-center">
-                <p class="text-yellow-800">No tienes un código QR asignado. Genera uno para registrar tu asistencia.</p>
-                <a href="{{ route('students.my-qr') }}" class="mt-2 inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
-                    Generar Código QR
-                </a>
-            </div>
-        @endif
+        </div>
     </div>
 </div>

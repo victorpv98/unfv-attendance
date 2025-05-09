@@ -186,6 +186,22 @@ class ScheduleController extends Controller
         }
     }
 
+
+    public function getDayInSpanishAttribute()
+    {
+        $dias = [
+            'monday' => 'Lunes',
+            'tuesday' => 'Martes',
+            'wednesday' => 'Miércoles',
+            'thursday' => 'Jueves',
+            'friday' => 'Viernes',
+            'saturday' => 'Sábado',
+            'sunday' => 'Domingo'
+        ];
+        
+        return $dias[strtolower($this->day)] ?? $this->day;
+    }
+    
     /**
      * Check if a schedule overlaps with an existing one for the same teacher.
      */

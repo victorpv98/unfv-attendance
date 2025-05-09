@@ -100,7 +100,9 @@
                         <li class="d-flex align-items-start mb-3">
                             <div class="flex-shrink-0">
                                 <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light" style="width: 32px; height: 32px;">
-                                    <span class="fw-medium text-secondary">{{ substr($activity->user->name, 0, 1) }}</span>
+                                    <span class="fw-medium text-secondary">
+                                        {{ $activity->user ? substr($activity->user->name, 0, 1) : '?' }}
+                                    </span>
                                 </span>
                             </div>
                             <div class="ms-3">

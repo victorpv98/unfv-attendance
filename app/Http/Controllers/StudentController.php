@@ -200,11 +200,79 @@ class StudentController extends Controller
     /**
      * Display student's courses.
      */
-    public function myCourses()
+    public function myCourses(Request $request)
     {
         $student = Student::where('user_id', auth()->id())->firstOrFail();
-        $courses = $student->courses()->with('faculty')->get();
-        return view('student.courses', compact('courses'));
+        
+        // Obtener el semestre actual (puedes determinar esto según tu lógica de negocio)
+        $currentSemester = '2025-I'; // Ajusta esto según cómo determinas el semestre actual
+        
+        // Obtener los cursos del estudiante para el semestre actual desde la tabla pivote
+        $courses = $student->courses()
+            ->with(['faculty', 'schedules', 'schedules.teacher.user'])
+            ->wherePivot('semester', $currentSemester)
+            ->get();
+        
+        // Calcular el porcentaje de asistencia para cada curso
+        $coursesAttendance = [];
+        foreach ($courses as $course) {
+            // Aquí tu lógica para calcular asistencia
+            $totalClasses = $course->schedules->count(); // O tu forma de calcular clases totales
+            
+            $attendedClasses = Attendance::where('student_id', $student->id)
+                ->whereHas('schedule', function ($query) use ($course) {
+                    $query->where('course_id', $course->id);
+                })
+                ->count();
+            
+            $percentage = $totalClasses > 0 ? round(($attendedClasses / $totalClasses) * 100) : 0;
+            
+            $coursesAttendance[$course->id] = [
+                'total' => $totalClasses,
+                'attended' => $attendedClasses,
+                'percentage' => $percentage
+            ];
+        }
+        
+        // Obtener semestres pasados desde la tabla pivote
+        $pastSemesters = DB::table('course_student')
+            ->where('student_id', $student->id)
+            ->where('semester', '!=', $currentSemester)
+            ->distinct()
+            ->pluck('semester')
+            ->toArray();
+        
+        // Gestionar cursos de semestres anteriores si se selecciona uno
+        $pastCourses = collect();
+        $pastCoursesAttendance = [];
+        
+        if ($request->has('semester') && in_array($request->semester, $pastSemesters)) {
+            $selectedSemester = $request->semester;
+            
+            $pastCourses = $student->courses()
+                ->with('faculty')
+                ->wherePivot('semester', $selectedSemester)
+                ->get();
+                
+            // Calcular asistencia para cursos pasados
+            foreach ($pastCourses as $course) {
+                // Lógica para calcular asistencia de cursos pasados
+                // Esto sería similar al cálculo de arriba
+                
+                $pastCoursesAttendance[$course->id] = [
+                    'percentage' => 85 // Reemplaza con el cálculo real
+                ];
+            }
+        }
+        
+        return view('students.my-courses', compact(
+            'courses', 
+            'currentSemester', 
+            'coursesAttendance', 
+            'pastSemesters', 
+            'pastCourses', 
+            'pastCoursesAttendance'
+        ));
     }
 
     /**
@@ -214,7 +282,6 @@ class StudentController extends Controller
     {
         $student = Student::where('user_id', auth()->id())->firstOrFail();
         
-        // Verificar si el estudiante está matriculado en el curso
         if (!$student->courses->contains($course->id)) {
             abort(403, 'No estás matriculado en este curso.');
         }
@@ -227,20 +294,126 @@ class StudentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         
-        return view('student.course-attendances', compact('course', 'attendances'));
+            return view('students.course-attendances', compact('course', 'attendances'));
     }
 
     /**
      * Display all student's attendances.
      */
-    public function myAttendances()
+    public function myAttendances(Request $request)
     {
         $student = Student::where('user_id', auth()->id())->firstOrFail();
-        $attendances = Attendance::where('student_id', $student->id)
-            ->with(['schedule', 'schedule.course'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
         
-        return view('student.attendances', compact('attendances'));
+        // Obtener los cursos del estudiante para el filtro
+        $courses = $student->courses()->get();
+        
+        // Definir los meses para el filtro
+        $months = [
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
+        ];
+        
+        // Construir la consulta base para las asistencias
+        $query = Attendance::where('student_id', $student->id)
+            ->with(['schedule', 'schedule.course', 'schedule.teacher.user']);
+        
+        // Aplicar filtros si existen
+        if ($request->filled('course_id')) {
+            $query->whereHas('schedule', function ($q) use ($request) {
+                $q->where('course_id', $request->course_id);
+            });
+        }
+        
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+        
+        // Obtener los resultados paginados
+        $attendances = $query->orderBy('date', 'desc')
+                            ->orderBy('time', 'desc')
+                            ->paginate(10);
+        
+        // Calcular el resumen general de asistencias
+        $allAttendances = Attendance::where('student_id', $student->id);
+        
+        // Aplicar los mismos filtros al resumen
+        if ($request->filled('course_id')) {
+            $allAttendances->whereHas('schedule', function ($q) use ($request) {
+                $q->where('course_id', $request->course_id);
+            });
+        }
+        
+        if ($request->filled('month')) {
+            $allAttendances->whereMonth('date', $request->month);
+        }
+        
+        $allAttendances = $allAttendances->get();
+        
+        $totalAttendances = $allAttendances->count();
+        $presentCount = $allAttendances->where('status', 'present')->count();
+        $lateCount = $allAttendances->where('status', 'late')->count();
+        $absentCount = $allAttendances->where('status', 'absent')->count();
+        
+        $summary = [
+            'present' => $presentCount,
+            'late' => $lateCount,
+            'absent' => $absentCount,
+            'presentPercentage' => $totalAttendances > 0 ? round(($presentCount / $totalAttendances) * 100) : 0,
+            'latePercentage' => $totalAttendances > 0 ? round(($lateCount / $totalAttendances) * 100) : 0,
+            'absentPercentage' => $totalAttendances > 0 ? round(($absentCount / $totalAttendances) * 100) : 0,
+        ];
+        
+        // Generar resumen por curso
+        $coursesSummary = collect();
+        
+        foreach ($courses as $course) {
+            $courseAttendances = Attendance::where('student_id', $student->id)
+                ->whereHas('schedule', function ($query) use ($course) {
+                    $query->where('course_id', $course->id);
+                });
+            
+            // Aplicar filtro de mes al resumen por curso si existe
+            if ($request->filled('month')) {
+                $courseAttendances->whereMonth('date', $request->month);
+            }
+            
+            $courseAttendances = $courseAttendances->get();
+            
+            $totalCourseAttendances = $courseAttendances->count();
+            
+            if ($totalCourseAttendances > 0) {
+                $coursesPresentCount = $courseAttendances->where('status', 'present')->count();
+                $coursesLateCount = $courseAttendances->where('status', 'late')->count();
+                $coursesAbsentCount = $courseAttendances->where('status', 'absent')->count();
+                
+                $course->present_count = $coursesPresentCount;
+                $course->late_count = $coursesLateCount;
+                $course->absent_count = $coursesAbsentCount;
+                $course->attendance_percentage = round((($coursesPresentCount + $coursesLateCount) / $totalCourseAttendances) * 100);
+                $course->present_percentage = round(($coursesPresentCount / $totalCourseAttendances) * 100);
+                $course->late_percentage = round(($coursesLateCount / $totalCourseAttendances) * 100);
+                $course->absent_percentage = round(($coursesAbsentCount / $totalCourseAttendances) * 100);
+                
+                $coursesSummary->push($course);
+            }
+        }
+        
+        return view('students.my-attendances', compact(
+            'attendances', 
+            'courses', 
+            'months', 
+            'summary', 
+            'coursesSummary'
+        ));
     }
 }
