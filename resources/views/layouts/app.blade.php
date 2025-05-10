@@ -17,6 +17,14 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
+    <style>
+        .dropdown-menu.show {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    </style>
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -38,9 +46,13 @@
                             @yield('header')
                         </h2>
                         <div class="d-flex align-items-center">
-                            <!-- User dropdown -->
+                            <!-- User dropdown - Implementación simplificada -->
                             <div class="dropdown">
-                                <button class="btn btn-link text-secondary dropdown-toggle text-decoration-none" type="button" id="user-menu-button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-light dropdown-toggle" 
+                                        type="button" 
+                                        id="user-menu-button" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
                                     <span class="me-2">{{ Auth::user()->name ?? 'Usuario' }}</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user-menu-button">
@@ -94,8 +106,53 @@
         </div>
     </div>
     
-    <!-- Bootstrap JS Bundle with Popper -->
+    <!-- jQuery (opcional pero útil para solucionar problemas de compatibilidad) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS Bundle con Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para la implementación manual del dropdown -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenuButton = document.getElementById('user-menu-button');
+            
+            if (userMenuButton) {
+                const dropdownMenu = userMenuButton.nextElementSibling;
+                
+                if (typeof bootstrap !== 'undefined') {
+                    try {
+                        new bootstrap.Dropdown(userMenuButton);
+                    } catch (e) {
+                        console.error('Error al inicializar dropdown con Bootstrap:', e);
+                    }
+                }
+                
+                userMenuButton.addEventListener('click', function(e) {
+                    if (!dropdownMenu.classList.contains('show')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+                            if (menu !== dropdownMenu) {
+                                menu.classList.remove('show');
+                            }
+                        });
+                        
+                        dropdownMenu.classList.toggle('show');
+                    }
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!userMenuButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
+            
+            console.log('Scripts cargados. Bootstrap disponible:', typeof bootstrap !== 'undefined');
+        });
+    </script>
     
     <!-- Scripts adicionales -->
     @stack('scripts')

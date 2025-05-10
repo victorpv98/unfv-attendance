@@ -59,8 +59,8 @@ Sistema de gestión de asistencia mediante códigos QR para la Universidad Nacio
    DB_HOST=127.0.0.1
    DB_PORT=5432
    DB_DATABASE=unfv_attendance
-   DB_USERNAME=tu_usuario
-   DB_PASSWORD=tu_contraseña
+   DB_USERNAME=unfv_user
+   DB_PASSWORD=1234
    ```
 
 5. **Ejecutar migraciones y seeders**
