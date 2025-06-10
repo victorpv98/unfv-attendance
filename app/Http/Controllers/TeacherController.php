@@ -185,8 +185,17 @@ class TeacherController extends Controller
 
     /**
      * Show QR scanner for a schedule.
+     * @deprecated Use scanBarcode instead
      */
     public function scanQr($schedule)
+    {
+        return $this->scanBarcode($schedule);
+    }
+
+    /**
+     * Show barcode scanner for a schedule.
+     */
+    public function scanBarcode($schedule)
     {
         $teacher = Teacher::where('user_id', auth()->id())->firstOrFail();
         $schedule = $teacher->schedules()->findOrFail($schedule);
@@ -195,6 +204,7 @@ class TeacherController extends Controller
             ->with(['student.user'])
             ->orderBy('time', 'desc')
             ->get();
-        return view('teachers.scan-qr', compact('schedule', 'attendances'));
+        
+        return view('teachers.scan-barcode', compact('schedule', 'attendances'));
     }
 }

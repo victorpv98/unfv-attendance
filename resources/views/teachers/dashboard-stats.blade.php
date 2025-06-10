@@ -62,25 +62,35 @@
     <div class="col-md-6 mb-4">
         <div class="card shadow border-0 h-100">
             <div class="card-body p-4">
-                <h5 class="card-title fw-semibold mb-4">Clases de Hoy</h5>
+                <h5 class="card-title fw-semibold mb-4">
+                    <i class="fas fa-calendar-day me-2 text-primary"></i>
+                    Clases de Hoy
+                </h5>
                 @if(isset($todaySchedules) && count($todaySchedules) > 0)
                     <ul class="list-group list-group-flush">
                         @foreach($todaySchedules as $schedule)
                             <li class="list-group-item px-0 py-3 border-bottom">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div>
+                                    <div class="flex-grow-1">
                                         <h6 class="fw-medium mb-1">{{ $schedule->course->name }}</h6>
-                                        <p class="text-muted small mb-0">{{ $schedule->classroom }} | {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
+                                        <p class="text-muted small mb-0">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ $schedule->classroom }} | 
+                                            <i class="fas fa-clock me-1"></i>{{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                        </p>
                                     </div>
-                                    <a href="{{ route('teachers.scan-qr', $schedule) }}" class="btn btn-primary btn-sm">
-                                        Escanear QR
+                                    <a href="{{ route('teachers.scan-barcode', $schedule) }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-barcode me-1"></i>
+                                        Escanear
                                     </a>
                                 </div>
                             </li>
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-muted">No tienes clases programadas para hoy</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
+                        <p class="text-muted mb-0">No tienes clases programadas para hoy</p>
+                    </div>
                 @endif
             </div>
         </div>
@@ -90,7 +100,10 @@
     <div class="col-md-6 mb-4">
         <div class="card shadow border-0 h-100">
             <div class="card-body p-4">
-                <h5 class="card-title fw-semibold mb-4">Resumen de Asistencias</h5>
+                <h5 class="card-title fw-semibold mb-4">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>
+                    Resumen de Asistencias
+                </h5>
                 <div style="height: 250px;">
                     <!-- Gráfico -->
                     <canvas id="attendanceChart"></canvas>
@@ -99,3 +112,61 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Datos para el gráfico del dashboard
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        
+        // Datos de ejemplo - estos deberían venir del controlador
+        const data = {
+            labels: ['Presentes', 'Tardanzas', 'Ausentes'],
+            datasets: [{
+                data: [70, 15, 15], // Datos de ejemplo
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(220, 53, 69, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(220, 53, 69, 1)'
+                ],
+                borderWidth: 2
+            }]
+        };
+
+        const attendanceChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return `${label}: ${percentage}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+@endpush

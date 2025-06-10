@@ -23,11 +23,33 @@ class Student extends Model
 
     public function courses()
     {
-        return $this->belongsToMany(Course::class)->withPivot('semester')->withTimestamps();
+        return $this->belongsToMany(Course::class, 'course_student')
+                    ->withPivot('semester')
+                    ->withTimestamps();
     }
 
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($student) {
+            if (empty($student->qr_code)) {
+                $student->qr_code = $student->generateQrCode();
+            }
+        });
+    }
+
+    private function generateQrCode()
+    {
+        return 'QR-' . $this->code;
+        
+        return \Illuminate\Support\Str::uuid();
+        
+        return 'QR-' . \Illuminate\Support\Str::random(10);
     }
 }

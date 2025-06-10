@@ -10,8 +10,8 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Reporte de Asistencia</h6>
             <div>
-                <a href="{{ route('teachers.scan-qr', $schedule) }}" class="btn btn-sm btn-primary me-2">
-                    <i class="fas fa-qrcode"></i> Escanear QR
+                <a href="{{ route('teachers.scan-barcode', $schedule) }}" class="btn btn-sm btn-primary me-2">
+                    <i class="fas fa-barcode"></i> Escanear Código de Barras
                 </a>
                 <a href="{{ route('teachers.my-schedules') }}" class="btn btn-sm btn-secondary">
                     <i class="fas fa-arrow-left"></i> Volver a Horarios
@@ -21,11 +21,15 @@
         
         <div class="card-body">
             <div class="mb-4">
-                <h4>{{ $schedule->course->name }}</h4>
-                <p>
-                    <i class="far fa-clock"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }} | 
-                    <i class="fas fa-map-marker-alt"></i> {{ $schedule->classroom }} | 
-                    <i class="far fa-calendar-alt"></i> {{ __($schedule->day) }}
+                <h4>
+                    <i class="fas fa-book me-2 text-primary"></i>
+                    {{ $schedule->course->name }}
+                </h4>
+                <p class="text-muted">
+                    <i class="far fa-clock me-1"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }} | 
+                    <i class="fas fa-map-marker-alt me-1"></i> {{ $schedule->classroom }} | 
+                    <i class="far fa-calendar-alt me-1"></i> {{ __($schedule->day) }} |
+                    <i class="fas fa-user me-1"></i> Profesor: {{ $schedule->teacher->user->name }}
                 </p>
             </div>
             
@@ -33,7 +37,10 @@
                 <div class="col-lg-6">
                     <form action="{{ route('attendance.report', $schedule) }}" method="GET" class="d-flex">
                         <div class="me-2 flex-grow-1">
-                            <label for="date" class="form-label">Fecha</label>
+                            <label for="date" class="form-label">
+                                <i class="fas fa-calendar me-1"></i>
+                                Fecha
+                            </label>
                             <input type="date" id="date" name="date" class="form-control" 
                                 value="{{ request('date', now()->toDateString()) }}">
                         </div>
@@ -127,11 +134,26 @@
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>Estudiante</th>
-                            <th>Código</th>
-                            <th>Estado</th>
-                            <th>Hora</th>
-                            <th>Acciones</th>
+                            <th>
+                                <i class="fas fa-user me-1"></i>
+                                Estudiante
+                            </th>
+                            <th>
+                                <i class="fas fa-id-card me-1"></i>
+                                Código
+                            </th>
+                            <th>
+                                <i class="fas fa-check-circle me-1"></i>
+                                Estado
+                            </th>
+                            <th>
+                                <i class="fas fa-clock me-1"></i>
+                                Hora
+                            </th>
+                            <th>
+                                <i class="fas fa-edit me-1"></i>
+                                Acciones
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -141,11 +163,19 @@
                                 <td>{{ $student->code }}</td>
                                 <td>
                                     @if (isset($attendances[$student->id]))
-                                        <span class="badge {{ $attendances[$student->id]->status === 'present' ? 'bg-success' : ($attendances[$student->id]->status === 'late' ? 'bg-warning' : 'bg-danger') }}">
-                                            {{ $attendances[$student->id]->status === 'present' ? 'Presente' : ($attendances[$student->id]->status === 'late' ? 'Tardanza' : 'Ausente') }}
+                                        <span class="badge {{ $attendances[$student->id]->status === 'present' ? 'bg-success' : ($attendances[$student->id]->status === 'late' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                            @if($attendances[$student->id]->status === 'present')
+                                                <i class="fas fa-check me-1"></i>Presente
+                                            @elseif($attendances[$student->id]->status === 'late')
+                                                <i class="fas fa-clock me-1"></i>Tardanza
+                                            @else
+                                                <i class="fas fa-times me-1"></i>Ausente
+                                            @endif
                                         </span>
                                     @else
-                                        <span class="badge bg-danger">Ausente</span>
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times me-1"></i>Ausente
+                                        </span>
                                     @endif
                                 </td>
                                 <td>{{ isset($attendances[$student->id]) ? $attendances[$student->id]->time : '-' }}</td>
@@ -177,7 +207,12 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center">No hay estudiantes matriculados en este curso</td>
+                                <td colspan="5" class="text-center">
+                                    <div class="py-3">
+                                        <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No hay estudiantes matriculados en este curso</p>
+                                    </div>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -188,11 +223,40 @@
     
     <div class="card shadow">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Gráfico de Asistencia</h6>
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-chart-pie me-2"></i>
+                Gráfico de Asistencia
+            </h6>
         </div>
         <div class="card-body">
-            <div class="chart-container" style="position: relative; height:300px;">
-                <canvas id="attendanceChart"></canvas>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex flex-column justify-content-center h-100">
+                        <div class="text-center mb-3">
+                            <h5 class="text-muted">Total de Estudiantes</h5>
+                            <h2 class="text-primary">{{ ($summary['present'] ?? 0) + ($summary['late'] ?? 0) + ($summary['absent'] ?? 0) }}</h2>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                                <span><i class="fas fa-circle text-success me-2"></i>Presentes</span>
+                                <span class="badge bg-success rounded-pill">{{ $summary['present'] ?? 0 }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                                <span><i class="fas fa-circle text-warning me-2"></i>Tardanzas</span>
+                                <span class="badge bg-warning rounded-pill">{{ $summary['late'] ?? 0 }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                                <span><i class="fas fa-circle text-danger me-2"></i>Ausentes</span>
+                                <span class="badge bg-danger rounded-pill">{{ $summary['absent'] ?? 0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -221,7 +285,7 @@
                         'rgba(255, 193, 7, 1)',
                         'rgba(220, 53, 69, 1)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -229,7 +293,11 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                        }
                     },
                     tooltip: {
                         callbacks: {
@@ -237,7 +305,7 @@
                                 const label = context.label || '';
                                 const value = context.raw || 0;
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
+                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
                                 return `${label}: ${value} (${percentage}%)`;
                             }
                         }

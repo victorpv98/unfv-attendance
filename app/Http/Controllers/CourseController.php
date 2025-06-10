@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Faculty;
+use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
@@ -108,28 +110,97 @@ class CourseController extends Controller
     /**
      * Enroll students in a course.
      */
-    public function enrollStudents(Request $request, Course $course)
+    public function enroll(Request $request, Course $course)
     {
         $request->validate([
-            'students' => 'required|array',
-            'students.*' => 'exists:students,id',
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'exists:students,id',
+            'semester' => 'required|string|max:20'
         ]);
 
-        $course->students()->attach($request->students);
+        try {
+            $studentIds = $request->student_ids;
+            $semester = $request->semester;
 
-        return redirect()->route('admin.courses.students', $course)
-            ->with('success', 'Estudiantes matriculados exitosamente.');
+            // Verificar qué estudiantes ya están matriculados en este curso y semestre específico
+            $alreadyEnrolled = DB::table('course_student')
+                ->where('course_id', $course->id)
+                ->whereIn('student_id', $studentIds)
+                ->where('semester', $semester)
+                ->pluck('student_id')
+                ->toArray();
+
+            $newEnrollments = array_diff($studentIds, $alreadyEnrolled);
+
+            if (!empty($newEnrollments)) {
+                // Preparar datos para inserción manual
+                $insertData = [];
+                foreach ($newEnrollments as $studentId) {
+                    $insertData[] = [
+                        'course_id' => $course->id,
+                        'student_id' => $studentId,
+                        'semester' => $semester,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+
+                // Insertar directamente en la tabla
+                DB::table('course_student')->insert($insertData);
+
+                $message = count($newEnrollments) . ' estudiante(s) matriculado(s) exitosamente.';
+                
+                if (!empty($alreadyEnrolled)) {
+                    $message .= ' ' . count($alreadyEnrolled) . ' estudiante(s) ya estaban matriculados en este semestre.';
+                }
+            } else {
+                $message = 'Todos los estudiantes seleccionados ya estaban matriculados en este semestre.';
+            }
+
+            return redirect()->route('admin.courses.students', $course)
+                            ->with('success', $message);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al matricular estudiantes: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()
+                            ->with('error', 'Error al matricular estudiantes. Por favor, inténtelo de nuevo.')
+                            ->withInput();
+        }
+    }
+
+    /**
+     * Enroll students in a course (método alternativo para compatibilidad).
+     */
+    public function enrollStudents(Request $request, Course $course)
+    {
+        return $this->enroll($request, $course);
     }
 
     /**
      * Unenroll a student from a course.
      */
+    public function unenroll(Course $course, $studentId)
+    {
+        try {
+            $student = Student::findOrFail($studentId);
+            $course->students()->detach($studentId);
+
+            return redirect()->route('admin.courses.students', $course)
+                            ->with('success', 'Estudiante desmatriculado exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                            ->with('error', 'Error al desmatricular estudiante.');
+        }
+    }
+
+    /**
+     * Unenroll a student from a course (método alternativo para compatibilidad).
+     */
     public function unenrollStudent(Course $course, $student)
     {
-        $course->students()->detach($student);
-
-        return redirect()->route('admin.courses.students', $course)
-            ->with('success', 'Estudiante desmatriculado exitosamente.');
+        return $this->unenroll($course, $student);
     }
 
     /**

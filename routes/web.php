@@ -8,7 +8,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\QrController;
+use App\Http\Controllers\BarcodeController; // Cambiado de QrController
 use App\Http\Controllers\EnrollmentController;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,10 +30,10 @@ Route::middleware(['auth'])->group(function () {
     
     // Rutas para estudiantes
     Route::middleware([\App\Http\Middleware\CheckRole::class.':student'])->prefix('student')->group(function () {
-        // QR
-        Route::get('/my-qr', [QrController::class, 'myQr'])->name('students.my-qr');
-        Route::get('/qr-image/{student}', [QrController::class, 'qrImage'])->name('students.qr-image');
-        Route::post('/regenerate-qr', [QrController::class, 'regenerateQr'])->name('students.regenerate-qr');
+        // Códigos de barras - CORREGIDO: usar StudentController
+        Route::get('/my-barcode', [StudentController::class, 'myBarcode'])->name('students.my-barcode');
+        Route::get('/barcode-image/{student}', [StudentController::class, 'barcodeImage'])->name('students.barcode-image');
+        // ELIMINADO: regenerate-barcode ya no se necesita
         
         // Cursos y asistencias
         Route::get('/my-courses', [StudentController::class, 'myCourses'])->name('students.my-courses');
@@ -43,12 +43,12 @@ Route::middleware(['auth'])->group(function () {
     
     // Rutas para profesores
     Route::middleware([\App\Http\Middleware\CheckRole::class.':teacher'])->prefix('teacher')->group(function () {
-        // Horarios y QR
+        // Horarios y códigos de barras - CORREGIDO: scan-barcode
         Route::get('/my-schedules', [TeacherController::class, 'mySchedules'])->name('teachers.my-schedules');
-        Route::get('/scan-qr/{schedule}', [TeacherController::class, 'scanQr'])->name('teachers.scan-qr');
+        Route::get('/scan-barcode/{schedule}', [TeacherController::class, 'scanBarcode'])->name('teachers.scan-barcode');
         
-        // Asistencias
-        Route::post('/register-attendance', [AttendanceController::class, 'registerByQr'])->name('attendance.register-by-qr');
+        // Asistencias - CORREGIDO: register-by-barcode
+        Route::post('/register-attendance-barcode', [AttendanceController::class, 'registerByBarcode'])->name('attendance.register-by-barcode');
         Route::get('/attendance-report/{schedule}', [AttendanceController::class, 'report'])->name('attendance.report');
         Route::post('/update-attendance-status', [AttendanceController::class, 'updateStatus'])->name('attendance.update-status');
         Route::get('/export-attendance/{schedule}', [AttendanceController::class, 'export'])->name('attendance.export');
@@ -80,9 +80,11 @@ Route::middleware(['auth'])->group(function () {
             'update' => 'admin.courses.update',
             'destroy' => 'admin.courses.destroy',
         ]);
+        
+        // Rutas adicionales para estudiantes del curso - CORREGIDO: sin /admin/ duplicado
         Route::get('/courses/{course}/students', [CourseController::class, 'students'])->name('admin.courses.students');
-        Route::post('/courses/{course}/enroll', [CourseController::class, 'enrollStudents'])->name('admin.courses.enroll');
-        Route::delete('/courses/{course}/unenroll/{student}', [CourseController::class, 'unenrollStudent'])->name('admin.courses.unenroll');
+        Route::post('/courses/{course}/enroll', [CourseController::class, 'enroll'])->name('admin.courses.enroll');
+        Route::delete('/courses/{course}/students/{student}', [CourseController::class, 'unenroll'])->name('admin.courses.unenroll');
         
         // Gestión de profesores 
         Route::resource('teachers', TeacherController::class)->names([
@@ -122,8 +124,6 @@ Route::middleware(['auth'])->group(function () {
             'index' => 'admin.enrollments.index',
             'create' => 'admin.enrollments.create',
             'store' => 'admin.enrollments.store',
-            'show' => 'admin.schedules.show',
-            'update' => 'admin.schedules.update',
             'destroy' => 'admin.enrollments.destroy',
         ]);
         Route::get('/enrollments/by-course', [EnrollmentController::class, 'byCourse'])->name('admin.enrollments.byCourse');
@@ -132,5 +132,6 @@ Route::middleware(['auth'])->group(function () {
         // Reportes
         Route::get('/reports/attendance', [AttendanceController::class, 'adminReport'])->name('admin.reports.attendance');
         Route::get('/reports/courses', [CourseController::class, 'adminReport'])->name('admin.reports.courses');
+        Route::get('/reports/barcodes', [BarcodeController::class, 'barcodeReport'])->name('admin.reports.barcodes');
     });
 });

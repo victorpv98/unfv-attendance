@@ -79,8 +79,8 @@
                                                         <td>{{ $schedule->classroom }}</td>
                                                         <td>{{ $schedule->semester }}</td>
                                                         <td>
-                                                            <a href="{{ route('teachers.scan-qr', $schedule) }}" class="btn btn-primary btn-sm">
-                                                                <i class="fas fa-qrcode"></i> Escanear QR
+                                                            <a href="{{ route('teachers.scan-barcode', $schedule) }}" class="btn btn-primary btn-sm">
+                                                                <i class="fas fa-barcode"></i> Escanear Código
                                                             </a>
                                                             <a href="{{ route('attendance.report', $schedule) }}" class="btn btn-info btn-sm">
                                                                 <i class="fas fa-clipboard-list"></i> Reporte
@@ -130,8 +130,8 @@
                                         <small>Código: {{ $schedule->course->code }} | Semestre: {{ $schedule->semester }}</small>
                                     </div>
                                     <div>
-                                        <a href="{{ route('teachers.scan-qr', $schedule) }}" class="btn btn-success btn-sm">
-                                            <i class="fas fa-qrcode"></i> Escanear QR
+                                        <a href="{{ route('teachers.scan-barcode', $schedule) }}" class="btn btn-success btn-sm">
+                                            <i class="fas fa-barcode"></i> Escanear Código
                                         </a>
                                     </div>
                                 </div>

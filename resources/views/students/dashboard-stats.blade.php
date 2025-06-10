@@ -62,7 +62,10 @@
     <div class="col-md-6 mb-4">
         <div class="card shadow border-0 h-100">
             <div class="card-body p-4">
-                <h5 class="card-title fw-semibold mb-4">Clases de Hoy</h5>
+                <h5 class="card-title fw-semibold mb-4">
+                    <i class="fas fa-calendar-day me-2 text-primary"></i>
+                    Clases de Hoy
+                </h5>
                 @if(isset($todaySchedules) && count($todaySchedules) > 0)
                     <ul class="list-group list-group-flush">
                         @foreach($todaySchedules as $schedule)
@@ -70,8 +73,13 @@
                                 <div class="d-flex justify-content-between">
                                     <div>
                                         <h6 class="fw-medium mb-1">{{ $schedule->course->name }}</h6>
-                                        <p class="text-muted small mb-1">{{ $schedule->classroom }} | {{ $schedule->start_time }} - {{ $schedule->end_time }}</p>
-                                        <p class="text-muted small mb-0">Profesor: {{ $schedule->teacher->user->name }}</p>
+                                        <p class="text-muted small mb-1">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ $schedule->classroom }} | 
+                                            <i class="fas fa-clock me-1"></i>{{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                        </p>
+                                        <p class="text-muted small mb-0">
+                                            <i class="fas fa-user me-1"></i>Profesor: {{ $schedule->teacher->user->name }}
+                                        </p>
                                     </div>
                                     <div class="d-flex align-items-center">
                                         @if(isset($todayAttendances[$schedule->id]))
@@ -87,36 +95,42 @@
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-muted">No tienes clases programadas para hoy</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
+                        <p class="text-muted">No tienes clases programadas para hoy</p>
+                    </div>
                 @endif
             </div>
         </div>
     </div>
     
-    <!-- Mi Código QR -->
+    <!-- Mi Código de Barras -->
     <div class="col-md-6 mb-4">
         <div class="card shadow border-0 h-100">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title fw-semibold mb-0">Mi Código QR</h5>
-                    <a href="{{ route('students.my-qr') }}" class="text-primary">Ver Completo</a>
+                    <h5 class="card-title fw-semibold mb-0">
+                        <i class="fas fa-barcode me-2 text-primary"></i>
+                        Mi Código de Barras
+                    </h5>
+                    <a href="{{ route('students.my-barcode') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt me-1"></i>
+                        Ver Completo
+                    </a>
                 </div>
                 
-                @if(isset($student) && $student->qr_code)
-                    <div class="d-flex flex-column align-items-center">
-                        <div class="mb-3">
-                            <img src="{{ route('students.qr-image', $student) }}" alt="Mi Código QR" class="border p-2 rounded" style="width: 12rem; height: 12rem;">
-                        </div>
-                        <p class="text-muted small text-center">Muestra este código QR al profesor al inicio de cada clase</p>
+                <div class="d-flex flex-column align-items-center">
+                    <div class="mb-3 p-2 bg-white border rounded shadow-sm">
+                        <img src="{{ route('students.barcode-image', auth()->user()->student) }}" alt="Mi Código de Barras" class="img-fluid" style="max-width: 240px; height: auto;" id="barcode-image">
                     </div>
-                @else
-                    <div class="alert alert-warning text-center">
-                        <p class="mb-2">No tienes un código QR asignado. Genera uno para registrar tu asistencia.</p>
-                        <a href="{{ route('students.my-qr') }}" class="btn btn-primary mt-2">
-                            Generar Código QR
-                        </a>
-                    </div>
-                @endif
+                    <p class="text-muted small text-center mb-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Muestra este código de barras al profesor al inicio de cada clase
+                    </p>
+                    <p class="text-muted small text-center mb-0">
+                        <strong>Código:</strong> {{ auth()->user()->student->code }}
+                    </p>
+                </div>
             </div>
         </div>
     </div>

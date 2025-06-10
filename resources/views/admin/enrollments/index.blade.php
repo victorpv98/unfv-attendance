@@ -3,7 +3,7 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Gestión de Matrículas</h1>
+        <h2 class="fs-1 fw-semibold">Gestión de Matrículas</h2>
         <div>
             <a href="{{ route('admin.enrollments.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i> Nueva Matrícula

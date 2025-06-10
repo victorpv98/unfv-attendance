@@ -57,16 +57,12 @@ class StudentController extends Controller
                 'role' => 'student',
             ]);
 
-            // Generar código QR único
-            $qrCode = $this->generateUniqueQrCode();
-
-            // Crear el estudiante
+            // Crear el estudiante (sin qr_code ya que usaremos el código del estudiante)
             Student::create([
                 'user_id' => $user->id,
                 'faculty_id' => $request->faculty_id,
                 'code' => $request->code,
                 'cycle' => $request->cycle,
-                'qr_code' => $qrCode,
             ]);
 
             DB::commit();
@@ -183,18 +179,47 @@ class StudentController extends Controller
     }
 
     /**
-     * Generate a unique QR code for a student.
+     * Generate barcode image for student.
      */
-    private function generateUniqueQrCode()
+    public function barcodeImage(Student $student)
     {
-        $qrCode = Str::random(20);
-        
-        // Verificar si ya existe un estudiante con ese código QR
-        while (Student::where('qr_code', $qrCode)->exists()) {
-            $qrCode = Str::random(20);
+        try {
+            // Verificar que el usuario tenga permisos para ver este código de barras
+            if (auth()->user()->role === 'student' && auth()->user()->student->id !== $student->id) {
+                abort(403, 'No autorizado para ver este código de barras.');
+            }
+            
+            // Usar el código del estudiante directamente
+            $studentCode = $student->code;
+            
+            // Crear un hash único basado en el código del estudiante
+            // Esto cambiará solo si el código del estudiante cambia
+            $codeHash = md5($studentCode . $student->updated_at);
+            
+            // Generar código de barras usando Code 39 (en lugar de Code 128)
+            // Instalar con: composer require picqer/php-barcode-generator
+            $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
+            $barcode = $generator->getBarcode($studentCode, $generator::TYPE_CODE_39);
+            
+            return response($barcode)
+                ->header('Content-Type', 'image/png')
+                ->header('Cache-Control', 'public, max-age=3600') // Cache por 1 hora
+                ->header('ETag', $codeHash) // ETag basado en el código del estudiante
+                ->header('Last-Modified', $student->updated_at->format('D, d M Y H:i:s \G\M\T'));
+                
+        } catch (\Exception $e) {
+            // En caso de error, devolver una imagen de error o código por defecto
+            abort(500, 'Error al generar código de barras: ' . $e->getMessage());
         }
-        
-        return $qrCode;
+    }
+
+    /**
+     * Show student's barcode page.
+     */
+    public function myBarcode()
+    {
+        $student = Student::where('user_id', auth()->id())->firstOrFail();
+        return view('students.my-barcode', compact('student'));
     }
 
     /**

@@ -17,14 +17,27 @@
     <div class="card shadow-sm">
         <div class="card-body">
             @if(session('success'))
-                <div class="alert alert-success">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
 
@@ -84,13 +97,14 @@
                 <h5 class="modal-title" id="enrollStudentsModalLabel">Matricular estudiantes en {{ $course->name }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form action="{{ route('admin.courses.enroll', $course->id) }}" method="POST" id="enrollForm">
+            <form action="{{ route('admin.courses.enroll', $course->id) }}" method="POST" id="enrollForm">
+                <div class="modal-body">
                     @csrf
                     
                     <div class="mb-3">
                         <label for="semester" class="form-label">Semestre</label>
-                        <input type="text" class="form-control" id="semester" name="semester" value="{{ date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II') }}" required>
+                        <input type="text" class="form-control" id="semester" name="semester" 
+                               value="{{ date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II') }}" required>
                         <div class="form-text">Formato: YYYY-I o YYYY-II (Ej: 2025-I)</div>
                     </div>
                     
@@ -109,29 +123,44 @@
                                         $allStudents = App\Models\Student::with('user')->orderBy('code')->get();
                                     @endphp
                                     
-                                    @foreach($allStudents as $student)
-                                        <div class="form-check student-item mb-2 {{ in_array($student->id, $enrolledStudentIds) ? 'text-muted' : '' }}">
-                                            <input class="form-check-input student-checkbox" type="checkbox" name="student_ids[]" 
-                                                value="{{ $student->id }}" id="student{{ $student->id }}" 
-                                                {{ in_array($student->id, $enrolledStudentIds) ? 'disabled checked' : '' }}>
-                                            <label class="form-check-label" for="student{{ $student->id }}">
-                                                <strong>{{ $student->user->name }}</strong> ({{ $student->code }})
-                                                @if(in_array($student->id, $enrolledStudentIds))
-                                                    <span class="badge bg-info">Ya matriculado</span>
-                                                @endif
-                                            </label>
+                                    @if($allStudents->isEmpty())
+                                        <div class="alert alert-warning">
+                                            No hay estudiantes disponibles para matricular.
                                         </div>
-                                    @endforeach
+                                    @else
+                                        @foreach($allStudents as $student)
+                                            <div class="form-check student-item mb-2 {{ in_array($student->id, $enrolledStudentIds) ? 'text-muted' : '' }}">
+                                                <input class="form-check-input student-checkbox" type="checkbox" name="student_ids[]" 
+                                                    value="{{ $student->id }}" id="student{{ $student->id }}" 
+                                                    {{ in_array($student->id, $enrolledStudentIds) ? 'disabled checked' : '' }}>
+                                                <label class="form-check-label" for="student{{ $student->id }}">
+                                                    <strong>{{ $student->user->name }}</strong> ({{ $student->code }})
+                                                    @if(in_array($student->id, $enrolledStudentIds))
+                                                        <span class="badge bg-info">Ya matriculado</span>
+                                                    @endif
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <span id="selectedCount">0</span> estudiante(s) seleccionado(s)
+                            </small>
+                        </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="enrollForm" class="btn btn-primary">Matricular</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Matricular
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -139,10 +168,24 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Buscador de estudiantes
         const studentSearch = document.getElementById('studentSearch');
         const studentItems = document.querySelectorAll('.student-item');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const studentCheckboxes = document.querySelectorAll('.student-checkbox:not([disabled])');
+        const selectedCount = document.getElementById('selectedCount');
+        const submitBtn = document.getElementById('submitBtn');
+        const enrollForm = document.getElementById('enrollForm');
         
+        // Función para actualizar el contador
+        function updateSelectedCount() {
+            const checkedBoxes = document.querySelectorAll('.student-checkbox:not([disabled]):checked');
+            selectedCount.textContent = checkedBoxes.length;
+            
+            // Habilitar/deshabilitar botón de envío
+            submitBtn.disabled = checkedBoxes.length === 0;
+        }
+        
+        // Buscador de estudiantes
         studentSearch.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
             
@@ -157,17 +200,56 @@
         });
         
         // Seleccionar todos
-        const selectAllBtn = document.getElementById('selectAllBtn');
-        const studentCheckboxes = document.querySelectorAll('.student-checkbox:not([disabled])');
-        
         selectAllBtn.addEventListener('click', function() {
-            const anyUnchecked = Array.from(studentCheckboxes).some(checkbox => !checkbox.checked);
-            
-            studentCheckboxes.forEach(checkbox => {
-                if (checkbox.closest('.student-item').style.display !== 'none') {
-                    checkbox.checked = anyUnchecked;
-                }
+            const visibleCheckboxes = Array.from(studentCheckboxes).filter(checkbox => {
+                return checkbox.closest('.student-item').style.display !== 'none';
             });
+            
+            const anyUnchecked = visibleCheckboxes.some(checkbox => !checkbox.checked);
+            
+            visibleCheckboxes.forEach(checkbox => {
+                checkbox.checked = anyUnchecked;
+            });
+            
+            updateSelectedCount();
+        });
+        
+        // Eventos de checkbox
+        studentCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelectedCount);
+        });
+        
+        // Envío del formulario
+        enrollForm.addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.student-checkbox:not([disabled]):checked');
+            
+            if (checkedBoxes.length === 0) {
+                e.preventDefault();
+                alert('Debe seleccionar al menos un estudiante para matricular.');
+                return;
+            }
+            
+            // Mostrar spinner
+            const spinner = submitBtn.querySelector('.spinner-border');
+            spinner.classList.remove('d-none');
+            submitBtn.disabled = true;
+        });
+        
+        // Inicializar contador
+        updateSelectedCount();
+        
+        // Reset modal cuando se cierre
+        const modal = document.getElementById('enrollStudentsModal');
+        modal.addEventListener('hidden.bs.modal', function() {
+            enrollForm.reset();
+            studentSearch.value = '';
+            studentItems.forEach(item => item.style.display = '');
+            updateSelectedCount();
+            
+            // Ocultar spinner
+            const spinner = submitBtn.querySelector('.spinner-border');
+            spinner.classList.add('d-none');
+            submitBtn.disabled = false;
         });
     });
 </script>
