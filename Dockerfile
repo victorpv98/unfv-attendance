@@ -34,43 +34,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Crear script de inicio mejorado
-RUN echo '#!/bin/bash\n\
-echo "Starting Apache in background..."\n\
-apache2ctl start\n\
-\n\
-echo "Waiting for database (max 60 seconds)..."\n\
-count=0\n\
-until php artisan migrate:status > /dev/null 2>&1 || [ $count -eq 12 ]; do\n\
-    echo "Database not ready, waiting... ($count/12)"\n\
-    sleep 5\n\
-    count=$((count + 1))\n\
-done\n\
-\n\
-if [ $count -eq 12 ]; then\n\
-    echo "Database timeout - starting Apache anyway"\n\
-    apache2-foreground\n\
-    exit 0\n\
-fi\n\
-\n\
-echo "Database ready! Running setup..."\n\
-php artisan migrate --force || echo "Migration failed"\n\
-php artisan session:table --force 2>/dev/null || echo "Session table exists"\n\
-php artisan queue:table --force 2>/dev/null || echo "Queue table exists"\n\
-php artisan cache:table --force 2>/dev/null || echo "Cache table exists"\n\
-php artisan migrate --force || echo "Additional migrations failed"\n\
-\n\
-echo "Optimizing application..."\n\
-php artisan config:cache || echo "Config cache failed"\n\
-php artisan route:cache || echo "Route cache failed"\n\
-php artisan view:cache || echo "View cache failed"\n\
-\n\
-echo "Restarting Apache..."\n\
-apache2ctl stop\n\
-apache2-foreground' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
-
 # Exponer puerto
 EXPOSE 80
 
 # Comando de inicio
-CMD ["/usr/local/bin/start.sh"]
