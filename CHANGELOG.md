@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.008] - 2025-06-20
+### Changed
+- Automatic deployment of migrations
+
 ## [1.1.007] - 2025-06-20
 ### Added
 - Complete Docker containerization with Dockerfile and docker-compose.yml

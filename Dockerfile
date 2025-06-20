@@ -34,8 +34,34 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
+# Crear script de inicio que ejecute migraciones
+RUN echo '#!/bin/bash\n\
+# Esperar a que la BD esté disponible\n\
+echo "Waiting for database..."\n\
+until php artisan migrate:status > /dev/null 2>&1; do\n\
+    echo "Database not ready, waiting..."\n\
+    sleep 5\n\
+done\n\
+\n\
+echo "Running migrations..."\n\
+php artisan migrate --force || echo "Migration failed"\n\
+\n\
+echo "Creating additional tables..."\n\
+php artisan session:table --force 2>/dev/null || echo "Session table already exists"\n\
+php artisan queue:table --force 2>/dev/null || echo "Queue table already exists"\n\
+php artisan cache:table --force 2>/dev/null || echo "Cache table already exists"\n\
+php artisan migrate --force || echo "Additional migrations failed"\n\
+\n\
+echo "Caching configuration..."\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan view:cache\n\
+\n\
+echo "Starting Apache..."\n\
+apache2-foreground' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+
 # Exponer puerto
 EXPOSE 80
 
 # Comando de inicio
-CMD ["apache2-foreground"]
+CMD ["/usr/local/bin/start.sh"]
