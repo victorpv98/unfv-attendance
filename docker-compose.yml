@@ -5,9 +5,9 @@ services:
       - "8000:80"
     environment:
       - APP_NAME=UNFV Attendance
-      - APP_ENV=production
+      - APP_ENV=local
       - APP_KEY=base64:WUb9yShdkcsVCah0P+Wbg5WWyDTePNtEsfFh/UY1kTU=
-      - APP_DEBUG=false
+      - APP_DEBUG=true
       - APP_URL=http://localhost:8000
       - DB_CONNECTION=pgsql
       - DB_HOST=db
@@ -15,11 +15,12 @@ services:
       - DB_DATABASE=unfv_attendance
       - DB_USERNAME=unfv_user
       - DB_PASSWORD=unfv_password
-      - SESSION_DRIVER=database
-      - CACHE_STORE=database
-      - QUEUE_CONNECTION=database
+      - SESSION_DRIVER=file
+      - CACHE_STORE=file
+      - QUEUE_CONNECTION=sync
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
@@ -36,9 +37,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U unfv_user -d unfv_attendance"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
