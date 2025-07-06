@@ -137,9 +137,6 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-// ===============================================================
-// RUTAS DE DIAGNÓSTICO - SIN AUTENTICACIÓN
-// ===============================================================
 
 // Ruta básica de prueba
 Route::get('/test', function () {
@@ -254,3 +251,41 @@ Route::get('/setup-production', function () {
         return '<html><head><title>Setup Error</title></head><body><pre>❌ Setup failed: ' . $e->getMessage() . "\n\nStack trace:\n" . $e->getTraceAsString() . '</pre></body></html>';
     }
 });
+
+Route::get('/setup-database/{secret}', function ($secret) {
+    // Verificar secret key para seguridad
+    if ($secret !== env('SETUP_SECRET', 'default-secret-key')) {
+        abort(404);
+    }
+    
+    $output = [];
+    
+    try {
+        // Ejecutar migraciones
+        Artisan::call('migrate', ['--force' => true]);
+        $output[] = 'Migraciones ejecutadas: ' . Artisan::output();
+        
+        // Crear tablas adicionales
+        Artisan::call('session:table');
+        Artisan::call('queue:table');  
+        Artisan::call('cache:table');
+        
+        // Ejecutar nuevas migraciones
+        Artisan::call('migrate', ['--force' => true]);
+        $output[] = 'Tablas adicionales creadas';
+        
+        // Optimizar
+        Artisan::call('config:cache');
+        Artisan::call('route:cache');
+        Artisan::call('view:cache');
+        $output[] = 'Aplicación optimizada';
+        
+    } catch (Exception $e) {
+        $output[] = 'Error: ' . $e->getMessage();
+    }
+    
+    return response()->json([
+        'status' => 'success',
+        'messages' => $output
+    ]);
+})->name('setup.database');

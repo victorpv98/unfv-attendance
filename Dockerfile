@@ -37,5 +37,9 @@ RUN chown -R www-data:www-data /var/www/html \
 # Exponer puerto
 EXPOSE 80
 
+# Script de inicio
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
 # Comando de inicio
-CMD ["apache2-foreground"]
+CMD ["/usr/local/bin/start.sh"]
