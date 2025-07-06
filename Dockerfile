@@ -17,9 +17,8 @@ RUN apt-get update && apt-get install -y \
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Configurar Apache
+# Habilitar mod_rewrite
 RUN a2enmod rewrite
-COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Establecer directorio de trabajo
 WORKDIR /var/www/html
@@ -33,14 +32,15 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
-
-# Configurar puerto dinámico para Railway
-EXPOSE $PORT
+    && chmod -R 755 /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/public
 
 # Script de inicio
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
+
+# Exponer puerto
+EXPOSE $PORT
 
 # Comando de inicio
 CMD ["/usr/local/bin/start.sh"]
