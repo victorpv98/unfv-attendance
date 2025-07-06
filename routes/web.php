@@ -8,9 +8,11 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\BarcodeController; // Cambiado de QrController
+use App\Http\Controllers\BarcodeController; 
 use App\Http\Controllers\EnrollmentController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 // Ruta principal 
 Route::get('/', function () {
@@ -30,10 +32,9 @@ Route::middleware(['auth'])->group(function () {
     
     // Rutas para estudiantes
     Route::middleware([\App\Http\Middleware\CheckRole::class.':student'])->prefix('student')->group(function () {
-        // Códigos de barras - CORREGIDO: usar StudentController
+        // Códigos de barras 
         Route::get('/my-barcode', [StudentController::class, 'myBarcode'])->name('students.my-barcode');
         Route::get('/barcode-image/{student}', [StudentController::class, 'barcodeImage'])->name('students.barcode-image');
-        // ELIMINADO: regenerate-barcode ya no se necesita
         
         // Cursos y asistencias
         Route::get('/my-courses', [StudentController::class, 'myCourses'])->name('students.my-courses');
@@ -43,11 +44,11 @@ Route::middleware(['auth'])->group(function () {
     
     // Rutas para profesores
     Route::middleware([\App\Http\Middleware\CheckRole::class.':teacher'])->prefix('teacher')->group(function () {
-        // Horarios y códigos de barras - CORREGIDO: scan-barcode
+        // Horarios y códigos de barras 
         Route::get('/my-schedules', [TeacherController::class, 'mySchedules'])->name('teachers.my-schedules');
         Route::get('/scan-barcode/{schedule}', [TeacherController::class, 'scanBarcode'])->name('teachers.scan-barcode');
         
-        // Asistencias - CORREGIDO: register-by-barcode
+        // Asistencias 
         Route::post('/register-attendance-barcode', [AttendanceController::class, 'registerByBarcode'])->name('attendance.register-by-barcode');
         Route::get('/attendance-report/{schedule}', [AttendanceController::class, 'report'])->name('attendance.report');
         Route::post('/update-attendance-status', [AttendanceController::class, 'updateStatus'])->name('attendance.update-status');
@@ -81,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
             'destroy' => 'admin.courses.destroy',
         ]);
         
-        // Rutas adicionales para estudiantes del curso - CORREGIDO: sin /admin/ duplicado
+        // Rutas adicionales para estudiantes del curso 
         Route::get('/courses/{course}/students', [CourseController::class, 'students'])->name('admin.courses.students');
         Route::post('/courses/{course}/enroll', [CourseController::class, 'enroll'])->name('admin.courses.enroll');
         Route::delete('/courses/{course}/students/{student}', [CourseController::class, 'unenroll'])->name('admin.courses.unenroll');
@@ -134,4 +135,122 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reports/courses', [CourseController::class, 'adminReport'])->name('admin.reports.courses');
         Route::get('/reports/barcodes', [BarcodeController::class, 'barcodeReport'])->name('admin.reports.barcodes');
     });
+});
+
+// ===============================================================
+// RUTAS DE DIAGNÓSTICO - SIN AUTENTICACIÓN
+// ===============================================================
+
+// Ruta básica de prueba
+Route::get('/test', function () {
+    return 'Laravel funciona correctamente!';
+});
+
+// Ruta de diagnóstico básico
+Route::get('/debug-basic', function () {
+    try {
+        $info = [];
+        $info[] = "✅ PHP Version: " . PHP_VERSION;
+        $info[] = "✅ Laravel loaded successfully";
+        $info[] = "✅ Environment: " . app()->environment();
+        
+        // Test database connection
+        try {
+            $pdo = DB::connection()->getPdo();
+            $info[] = "✅ Database connection successful";
+            $info[] = "📊 Database driver: " . $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            
+            // Test basic query
+            $result = DB::select('SELECT version()');
+            $info[] = "📊 PostgreSQL version: " . $result[0]->version ?? 'Unknown';
+        } catch (Exception $e) {
+            $info[] = "❌ Database error: " . $e->getMessage();
+        }
+        
+        // Test file permissions
+        $storage_writable = is_writable(storage_path());
+        $info[] = $storage_writable ? "✅ Storage writable" : "❌ Storage not writable";
+        
+        $cache_writable = is_writable(storage_path('framework/cache'));
+        $info[] = $cache_writable ? "✅ Cache writable" : "❌ Cache not writable";
+        
+        // Test environment variables
+        $info[] = "🔧 APP_ENV: " . config('app.env');
+        $info[] = "🔧 APP_DEBUG: " . (config('app.debug') ? 'true' : 'false');
+        $info[] = "🔧 APP_KEY: " . (config('app.key') ? 'Set' : 'Not set');
+        $info[] = "🔧 DATABASE_URL: " . (env('DATABASE_URL') ? 'Set' : 'Not set');
+        
+        return '<html><head><title>Debug Basic</title></head><body><pre>' . implode("\n", $info) . '</pre></body></html>';
+        
+    } catch (Exception $e) {
+        return '<html><head><title>Debug Error</title></head><body><pre>❌ Fatal error: ' . $e->getMessage() . "\n\nStack trace:\n" . $e->getTraceAsString() . '</pre></body></html>';
+    }
+});
+
+// Ruta de setup para producción
+Route::get('/setup-production', function () {
+    try {
+        $output = [];
+        
+        // Verificar conexión a BD
+        $output[] = "🔍 Testing database connection...";
+        $pdo = DB::connection()->getPdo();
+        $output[] = "✅ Database connection successful!";
+        
+        // Verificar si existe tabla migrations
+        try {
+            $migrations = DB::table('migrations')->count();
+            $output[] = "📊 Found $migrations migrations in database";
+        } catch (Exception $e) {
+            $output[] = "⚠️ Migrations table doesn't exist, will be created";
+        }
+        
+        // Ejecutar migraciones
+        $output[] = "📦 Running migrations...";
+        Artisan::call('migrate', ['--force' => true]);
+        $migrationOutput = Artisan::output();
+        $output[] = "Migration output: " . trim($migrationOutput);
+        $output[] = "✅ Migrations completed";
+        
+        // Crear tablas adicionales si es necesario
+        try {
+            $output[] = "📋 Creating additional tables...";
+            
+            // Verificar si necesitamos crear tabla de sesiones
+            if (!DB::getSchemaBuilder()->hasTable('sessions')) {
+                Artisan::call('session:table');
+                $output[] = "📝 Session table migration created";
+            }
+            
+            // Verificar si necesitamos crear tabla de jobs
+            if (!DB::getSchemaBuilder()->hasTable('jobs')) {
+                Artisan::call('queue:table');
+                $output[] = "📝 Queue table migration created";
+            }
+            
+            // Ejecutar migraciones adicionales
+            Artisan::call('migrate', ['--force' => true]);
+            $output[] = "✅ Additional tables created";
+            
+        } catch (Exception $e) {
+            $output[] = "⚠️ Additional tables error: " . $e->getMessage();
+        }
+        
+        // Limpiar y cachear configuración
+        $output[] = "⚡ Optimizing application...";
+        Artisan::call('config:cache');
+        Artisan::call('route:cache');
+        Artisan::call('view:cache');
+        $output[] = "✅ Application optimized";
+        
+        $output[] = "";
+        $output[] = "🎉 Setup completed successfully!";
+        $output[] = "";
+        $output[] = "You can now visit: https://unfv-attendance.onrender.com";
+        
+        return '<html><head><title>Setup Production</title></head><body><pre>' . implode("\n", $output) . '</pre></body></html>';
+        
+    } catch (\Exception $e) {
+        return '<html><head><title>Setup Error</title></head><body><pre>❌ Setup failed: ' . $e->getMessage() . "\n\nStack trace:\n" . $e->getTraceAsString() . '</pre></body></html>';
+    }
 });
