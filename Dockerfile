@@ -34,8 +34,9 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Exponer puerto
+# Configurar puerto dinámico para Render
 EXPOSE 80
+ENV PORT=80
 
 # Script de inicio
 COPY start.sh /usr/local/bin/start.sh
