@@ -28,16 +28,15 @@ WORKDIR /var/www/html
 COPY . .
 
 # Instalar dependencias de PHP
-RUN composer install --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Configurar puerto dinámico para Render
-EXPOSE 80
-ENV PORT=80
+# Configurar puerto dinámico para Railway
+EXPOSE $PORT
 
 # Script de inicio
 COPY start.sh /usr/local/bin/start.sh
