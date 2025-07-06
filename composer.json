@@ -52,9 +52,18 @@
         ],
         "post-install-cmd": [
             "php artisan clear-compiled",
+            "php artisan optimize:clear",
             "php artisan config:cache",
             "php artisan route:cache",
             "php artisan view:cache"
+        ],
+        "production-deploy": [
+            "php artisan optimize:clear",
+            "php artisan config:cache",
+            "php artisan route:cache",
+            "php artisan view:cache",
+            "php artisan migrate --force",
+            "php artisan db:seed --force"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
@@ -77,6 +86,9 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.2"
         }
     },
     "minimum-stability": "stable",
