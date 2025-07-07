@@ -11,7 +11,7 @@
                     </div>
                     <div>
                         <h6 class="fw-semibold text-muted mb-1">Facultades</h6>
-                        <h2 class="fs-1 fw-bold mb-0">{{ $faculties ?? 0 }}</h2>
+                        <h2 class="fs-1 fw-bold mb-0 text-primary">{{ $faculties ?? 0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -30,7 +30,7 @@
                     </div>
                     <div>
                         <h6 class="fw-semibold text-muted mb-1">Cursos</h6>
-                        <h2 class="fs-1 fw-bold mb-0">{{ $courses ?? 0 }}</h2>
+                        <h2 class="fs-1 fw-bold mb-0 text-success">{{ $courses ?? 0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                     </div>
                     <div>
                         <h6 class="fw-semibold text-muted mb-1">Profesores</h6>
-                        <h2 class="fs-1 fw-bold mb-0">{{ $teachers ?? 0 }}</h2>
+                        <h2 class="fs-1 fw-bold mb-0 text-info">{{ $teachers ?? 0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -61,14 +61,14 @@
         <div class="card shadow border-0">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center">
-                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 me-4" style="background-color: rgba(128, 0, 128, 0.1); color: purple;">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-secondary bg-opacity-10 text-secondary p-3 me-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </div>
                     <div>
                         <h6 class="fw-semibold text-muted mb-1">Estudiantes</h6>
-                        <h2 class="fs-1 fw-bold mb-0">{{ $students ?? 0 }}</h2>
+                        <h2 class="fs-1 fw-bold mb-0 text-secondary">{{ $students ?? 0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -80,10 +80,11 @@
     <!-- Gráfico de Asistencias -->
     <div class="col-md-6 mb-4">
         <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title fw-semibold mb-0">Asistencias por Facultad</h5>
+            </div>
             <div class="card-body p-4">
-                <h5 class="card-title fw-semibold mb-4">Asistencias por Facultad</h5>
                 <div style="height: 250px;">
-                    <!-- Gráfico -->
                     <canvas id="facultyAttendanceChart"></canvas>
                 </div>
             </div>
@@ -93,14 +94,16 @@
     <!-- Actividad Reciente -->
     <div class="col-md-6 mb-4">
         <div class="card shadow border-0">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title fw-semibold mb-0">Actividad Reciente</h5>
+            </div>
             <div class="card-body p-4">
-                <h5 class="card-title fw-semibold mb-4">Actividad Reciente</h5>
-                <ul class="list-unstyled">
-                    @foreach($recentActivities ?? [] as $activity)
+                <ul class="list-unstyled mb-0">
+                    @forelse($recentActivities ?? [] as $activity)
                         <li class="d-flex align-items-start mb-3">
                             <div class="flex-shrink-0">
-                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light" style="width: 32px; height: 32px;">
-                                    <span class="fw-medium text-secondary">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 text-primary" style="width: 32px; height: 32px;">
+                                    <span class="fw-medium small">
                                         {{ $activity->user ? substr($activity->user->name, 0, 1) : '?' }}
                                     </span>
                                 </span>
@@ -110,7 +113,12 @@
                                 <small class="text-muted">{{ $activity->created_at->diffForHumans() }}</small>
                             </div>
                         </li>
-                    @endforeach
+                    @empty
+                        <li class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-1 mb-2 d-block opacity-50"></i>
+                            <p class="mb-0">No hay actividad reciente</p>
+                        </li>
+                    @endforelse
                 </ul>
             </div>
         </div>

@@ -2,34 +2,37 @@
 
 @php
 $alignmentClasses = match ($align) {
-    'left' => 'ltr:origin-top-left rtl:origin-top-right start-0',
-    'top' => 'origin-top',
-    default => 'ltr:origin-top-right rtl:origin-top-left end-0',
+    'left' => 'dropdown-menu-start',
+    'top' => 'dropup',
+    default => 'dropdown-menu-end',
 };
 
 $width = match ($width) {
-    '48' => 'w-48',
-    default => $width,
+    '48' => 'w-auto',
+    'full' => 'w-100',
+    default => '',
 };
+
+$dropDirection = $align === 'top' ? 'dropup' : 'dropdown';
+
+// Convertir contentClasses de Tailwind a Bootstrap
+$contentClassesBootstrap = str_replace([
+    'py-1', 
+    'bg-white'
+], [
+    'py-1', 
+    'bg-white'
+], $contentClasses);
 @endphp
 
-<div class="relative" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false">
-    <div @click="open = ! open">
+<div class="dropdown {{ $dropDirection }}">
+    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         {{ $trigger }}
-    </div>
-
-    <div x-show="open"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-95"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-75"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95"
-            class="absolute z-50 mt-2 {{ $width }} rounded-md shadow-lg {{ $alignmentClasses }}"
-            style="display: none;"
-            @click="open = false">
-        <div class="rounded-md ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
+    </button>
+    
+    <ul class="dropdown-menu {{ $alignmentClasses }} {{ $width }} shadow">
+        <div class="{{ $contentClassesBootstrap }}">
             {{ $content }}
         </div>
-    </div>
+    </ul>
 </div>

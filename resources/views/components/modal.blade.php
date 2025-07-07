@@ -1,41 +1,44 @@
-<div id="{{ $id }}" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        
-        <!-- This centers the modal contents -->
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        
-        <!-- Modal panel -->
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <!-- Icon -->
-                    @if(isset($icon) && $icon === 'warning')
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                    @endif
-                    
-                    <!-- Content -->
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            {{ $title }}
-                        </h3>
-                        <div class="mt-2">
-                            <div class="text-sm text-gray-500">
-                                {{ $slot }}
+@props(['id', 'title', 'icon' => null])
+
+<div class="modal fade" id="{{ $id }}" tabindex="-1" aria-labelledby="{{ $id }}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <div class="w-100">
+                    <div class="d-flex align-items-start">
+                        <!-- Icon -->
+                        @if($icon === 'warning')
+                            <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle me-3" style="width: 48px; height: 48px;">
+                                <svg width="24" height="24" class="text-danger" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
                             </div>
+                        @endif
+                        
+                        <!-- Title -->
+                        <div class="flex-grow-1">
+                            <h1 class="modal-title fs-5 fw-medium text-body-emphasis mb-0" id="{{ $id }}Label">
+                                {{ $title }}
+                            </h1>
                         </div>
+                        
+                        <!-- Close button -->
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                 </div>
             </div>
             
+            <div class="modal-body pt-2">
+                <div class="text-body-secondary">
+                    {{ $slot }}
+                </div>
+            </div>
+            
             <!-- Actions -->
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                {{ $actions }}
+            <div class="modal-footer bg-body-tertiary border-0">
+                <div class="d-flex flex-column flex-sm-row-reverse gap-2 w-100">
+                    {{ $actions }}
+                </div>
             </div>
         </div>
     </div>

@@ -1,7 +1,80 @@
-// Body
-$body-bg: #f8fafc;
+// Variables globales UNFV
+
+// Colores institucionales UNFV 
+$unfv-primary-rgb: 255, 102, 0;      // #ff6600 en RGB
+$unfv-secondary-rgb: 44, 62, 80;     // #2c3e50 en RGB  
+$unfv-dark-rgb: 26, 26, 26;          // #1a1a1a en RGB
+$unfv-success-rgb: 40, 167, 69;      // #28a745 en RGB
+$unfv-warning-rgb: 255, 193, 7;      // #ffc107 en RGB
+$unfv-danger-rgb: 220, 53, 69;       // #dc3545 en RGB
+$unfv-info-rgb: 23, 162, 184;        // #17a2b8 en RGB
+
+// Colores en formato HEX para compatibilidad
+$unfv-primary: #ff6600;
+$unfv-secondary: #2c3e50;
+$unfv-dark: #1a1a1a;
+$unfv-success: #28a745;
+$unfv-warning: #ffc107;
+$unfv-danger: #dc3545;
+$unfv-info: #17a2b8;
+$unfv-light: #f8f9fa;
+$unfv-white: #ffffff;
 
 // Typography
 $font-family-sans-serif: 'Nunito', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
+
+// Body
+$body-bg: #f8fafc;
+
+
+// Colores principales (HEX)
+$primary: $unfv-primary;
+$secondary: $unfv-secondary;
+$success: $unfv-success;
+$info: $unfv-info;
+$warning: $unfv-warning;
+$danger: $unfv-danger;
+$light: $unfv-light;
+$dark: $unfv-dark;
+
+// Colores RGB (CRÍTICO para que Bootstrap funcione correctamente)
+$primary-rgb: $unfv-primary-rgb;
+$secondary-rgb: $unfv-secondary-rgb;
+$success-rgb: $unfv-success-rgb;
+$info-rgb: $unfv-info-rgb;
+$warning-rgb: $unfv-warning-rgb;
+$danger-rgb: $unfv-danger-rgb;
+$light-rgb: 248, 249, 250;
+$dark-rgb: $unfv-dark-rgb;
+
+// Theme colors map 
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark
+);
+
+// Navbar
+$navbar-dark-color: rgba($unfv-white, .8);
+$navbar-dark-hover-color: $unfv-primary;
+$navbar-dark-active-color: $unfv-primary;
+$navbar-dark-brand-color: $unfv-white;
+$navbar-dark-brand-hover-color: $unfv-primary;
+
+// Buttons
+$btn-border-radius: 0.375rem;
+$btn-border-radius-sm: 0.25rem;
+$btn-border-radius-lg: 0.5rem;
+
+// Cards
+$card-border-radius: 0.5rem;
+
+// Alerts
+$alert-border-radius: 0.5rem;

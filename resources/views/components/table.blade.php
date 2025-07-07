@@ -1,22 +1,18 @@
-<div class="flex flex-col">
-    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            {{ $header }}
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {{ $body }}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="d-flex flex-column">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    {{ $header }}
+                </tr>
+            </thead>
+            <tbody>
+                {{ $body }}
+            </tbody>
+        </table>
     </div>
     @if(isset($pagination))
-        <div class="mt-4">
+        <div class="mt-4 d-flex justify-content-center">
             {{ $pagination }}
         </div>
     @endif

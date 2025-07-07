@@ -42,10 +42,12 @@
             @endif
 
             @if($students->isEmpty())
+                {{-- alert-info usa azul UNFV --}}
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>No hay estudiantes matriculados en este curso.
                 </div>
             @else
+                {{-- Tabla responsive de Bootstrap --}}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -103,6 +105,7 @@
                     
                     <div class="mb-3">
                         <label for="semester" class="form-label">Semestre</label>
+                        {{-- form-control usa estilos UNFV --}}
                         <input type="text" class="form-control" id="semester" name="semester" 
                                value="{{ date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II') }}" required>
                         <div class="form-text">Formato: YYYY-I o YYYY-II (Ej: 2025-I)</div>
@@ -136,6 +139,7 @@
                                                 <label class="form-check-label" for="student{{ $student->id }}">
                                                     <strong>{{ $student->user->name }}</strong> ({{ $student->code }})
                                                     @if(in_array($student->id, $enrolledStudentIds))
+                                                        {{-- bg-info usa azul UNFV --}}
                                                         <span class="badge bg-info">Ya matriculado</span>
                                                     @endif
                                                 </label>
@@ -155,6 +159,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{-- btn-primary usa naranja UNFV --}}
                     <button type="submit" class="btn btn-primary" id="submitBtn">
                         <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         Matricular
@@ -176,37 +181,26 @@
         const submitBtn = document.getElementById('submitBtn');
         const enrollForm = document.getElementById('enrollForm');
         
-        // Función para actualizar el contador
         function updateSelectedCount() {
             const checkedBoxes = document.querySelectorAll('.student-checkbox:not([disabled]):checked');
             selectedCount.textContent = checkedBoxes.length;
-            
-            // Habilitar/deshabilitar botón de envío
             submitBtn.disabled = checkedBoxes.length === 0;
         }
         
-        // Buscador de estudiantes
         studentSearch.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
-            
             studentItems.forEach(item => {
                 const text = item.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
+                item.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         });
         
-        // Seleccionar todos
         selectAllBtn.addEventListener('click', function() {
             const visibleCheckboxes = Array.from(studentCheckboxes).filter(checkbox => {
                 return checkbox.closest('.student-item').style.display !== 'none';
             });
             
             const anyUnchecked = visibleCheckboxes.some(checkbox => !checkbox.checked);
-            
             visibleCheckboxes.forEach(checkbox => {
                 checkbox.checked = anyUnchecked;
             });
@@ -214,12 +208,10 @@
             updateSelectedCount();
         });
         
-        // Eventos de checkbox
         studentCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', updateSelectedCount);
         });
         
-        // Envío del formulario
         enrollForm.addEventListener('submit', function(e) {
             const checkedBoxes = document.querySelectorAll('.student-checkbox:not([disabled]):checked');
             
@@ -229,16 +221,13 @@
                 return;
             }
             
-            // Mostrar spinner
             const spinner = submitBtn.querySelector('.spinner-border');
             spinner.classList.remove('d-none');
             submitBtn.disabled = true;
         });
         
-        // Inicializar contador
         updateSelectedCount();
         
-        // Reset modal cuando se cierre
         const modal = document.getElementById('enrollStudentsModal');
         modal.addEventListener('hidden.bs.modal', function() {
             enrollForm.reset();
@@ -246,7 +235,6 @@
             studentItems.forEach(item => item.style.display = '');
             updateSelectedCount();
             
-            // Ocultar spinner
             const spinner = submitBtn.querySelector('.spinner-border');
             spinner.classList.add('d-none');
             submitBtn.disabled = false;
