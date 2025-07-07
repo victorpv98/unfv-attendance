@@ -1,16 +1,14 @@
 #!/bin/bash
 
-# Configurar puerto para Apache
 PORT=${PORT:-8080}
 echo "Configurando Apache para puerto $PORT"
 
-# Crear configuración de puertos
 echo "Listen $PORT" > /etc/apache2/ports.conf
 
-# Crear configuración del virtual host con puerto dinámico
 cat > /etc/apache2/sites-available/000-default.conf << EOF
 <VirtualHost *:$PORT>
-    ServerName localhost
+    ServerName unfv-attendance-production.up.railway.app
+    ServerAlias localhost
     DocumentRoot /var/www/html/public
     
     <Directory /var/www/html/public>
@@ -20,7 +18,6 @@ cat > /etc/apache2/sites-available/000-default.conf << EOF
         Options Indexes FollowSymLinks
     </Directory>
     
-    # Configuración para archivos PHP
     <FilesMatch \.php$>
         SetHandler application/x-httpd-php
     </FilesMatch>
@@ -30,37 +27,60 @@ cat > /etc/apache2/sites-available/000-default.conf << EOF
 </VirtualHost>
 EOF
 
-# Verificar que el directorio public existe
+echo "ServerName unfv-attendance-production.up.railway.app" >> /etc/apache2/apache2.conf
+
 if [ ! -d "/var/www/html/public" ]; then
     echo "ERROR: Directorio /var/www/html/public no existe"
     exit 1
 fi
 
-# Verificar que index.php existe
 if [ ! -f "/var/www/html/public/index.php" ]; then
     echo "ERROR: Archivo /var/www/html/public/index.php no existe"
     exit 1
 fi
 
-# Ejecutar optimizaciones después de que las variables de entorno estén disponibles
+# Debug de variables de BD
+echo "=== DEBUG BASE DE DATOS ==="
+echo "DB_CONNECTION: $DB_CONNECTION"
+echo "DB_HOST: $DB_HOST"
+echo "DB_PORT: $DB_PORT"
+echo "DB_DATABASE: $DB_DATABASE"
+echo "DB_USERNAME: $DB_USERNAME"
+echo "DB_PASSWORD: ${DB_PASSWORD:0:5}..."
+
 echo "Ejecutando optimizaciones..."
+php artisan config:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Ejecutar migraciones
-echo "Ejecutando migraciones..."
-php artisan migrate --force
+# Test de conexión ANTES de migraciones
+echo "=== PROBANDO CONEXIÓN A BD ==="
+php artisan tinker --execute="
+try {
+    \$pdo = DB::connection()->getPdo();
+    echo 'Conexión exitosa!' . PHP_EOL;
+    echo 'Base de datos: ' . \$pdo->query('SELECT current_database()')->fetchColumn() . PHP_EOL;
+} catch(Exception \$e) {
+    echo 'Error de conexión: ' . \$e->getMessage() . PHP_EOL;
+    exit(1);
+}
+"
 
-# Ejecutar seeders si es necesario
-echo "Ejecutando seeders..."
-php artisan db:seed --force
+echo "=== EJECUTANDO MIGRACIONES ==="
+if php artisan migrate --force; then
+    echo "✅ Migraciones ejecutadas exitosamente"
+else
+    echo "❌ Error en las migraciones - continuando sin seeders"
+fi
 
-# Mostrar configuración para debug
+# Solo ejecutar seeders si las migraciones funcionaron
+echo "=== SALTANDO SEEDERS (OPCIONAL) ==="
+echo "⚠️ Seeders deshabilitados temporalmente"
+
 echo "Configuración de Apache:"
 echo "Puerto: $PORT"
 echo "DocumentRoot: /var/www/html/public"
 
-# Iniciar Apache
 echo "Iniciando servidor Apache en puerto $PORT..."
 apache2-foreground

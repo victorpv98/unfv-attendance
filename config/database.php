@@ -84,19 +84,18 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DATABASE_URL'), // Cambiado de 'DB_URL' a 'DATABASE_URL' para Railway
+            // 'url' => env('DATABASE_URL'), // COMENTAR ESTA LÍNEA
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'railway'), // Cambiado default a 'railway'
-            'username' => env('DB_USERNAME', 'postgres'), // Cambiado default a 'postgres'
+            'database' => env('DB_DATABASE', 'railway'),
+            'username' => env('DB_USERNAME', 'postgres'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => env('DB_SSLMODE', 'prefer'), // Agregado soporte para SSL mode
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
             'options' => [
-                // Configuraciones adicionales para Railway
                 PDO::ATTR_TIMEOUT => 30,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             ],
