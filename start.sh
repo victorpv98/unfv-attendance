@@ -74,9 +74,33 @@ else
     echo "❌ Error en las migraciones - continuando sin seeders"
 fi
 
-# Solo ejecutar seeders si las migraciones funcionaron
-echo "=== SALTANDO SEEDERS (OPCIONAL) ==="
-echo "⚠️ Seeders deshabilitados temporalmente"
+# HABILITAR SEEDERS
+echo "=== EJECUTANDO SEEDERS ==="
+if php artisan db:seed --force --class=DatabaseSeeder; then
+    echo "✅ Seeders ejecutados exitosamente"
+else
+    echo "⚠️ Error en los seeders (continuando...)"
+fi
+
+# Generar storage link si no existe
+echo "=== CONFIGURANDO STORAGE ==="
+php artisan storage:link
+
+# Crear tablas adicionales si no existen
+echo "=== CREANDO TABLAS ADICIONALES ==="
+php artisan session:table 2>/dev/null || echo "Session table already exists"
+php artisan queue:table 2>/dev/null || echo "Queue table already exists" 
+php artisan cache:table 2>/dev/null || echo "Cache table already exists"
+
+# Ejecutar migraciones adicionales
+php artisan migrate --force
+
+# Verificar permisos críticos
+echo "=== CONFIGURANDO PERMISOS ==="
+chmod -R 775 storage/
+chmod -R 775 bootstrap/cache/
+chown -R www-data:www-data storage/
+chown -R www-data:www-data bootstrap/cache/
 
 echo "Configuración de Apache:"
 echo "Puerto: $PORT"
