@@ -21,7 +21,7 @@
                                 <p class="card-subtitle text-white-50 mb-0">{{ $course->code }}</p>
                             </div>
                             <div class="card-body p-3">
-                                <p class="text-muted small mb-2">Facultad: {{ $course->faculty->name }}</p>
+                                <p class="text-muted small mb-2">Escuela: {{ $course->faculty->name }}</p>
                                 <p class="text-muted small mb-2">Créditos: {{ $course->credits }}</p>
                                 <p class="text-muted small mb-3">Ciclo: {{ $course->cycle }}</p>
                                 

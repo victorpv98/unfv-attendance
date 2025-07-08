@@ -1,5 +1,5 @@
 <div class="row mb-4">
-    <!-- Facultades -->
+    <!-- Escuelas -->
     <div class="col-lg-3 col-md-6 mb-4">
         <div class="card shadow border-0">
             <div class="card-body p-4">
@@ -10,7 +10,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h6 class="fw-semibold text-muted mb-1">Facultades</h6>
+                        <h6 class="fw-semibold text-muted mb-1">Escuelas</h6>
                         <h2 class="fs-1 fw-bold mb-0 text-primary">{{ $faculties ?? 0 }}</h2>
                     </div>
                 </div>
@@ -81,45 +81,12 @@
     <div class="col-md-6 mb-4">
         <div class="card shadow border-0">
             <div class="card-header bg-primary text-white">
-                <h5 class="card-title fw-semibold mb-0">Asistencias por Facultad</h5>
+                <h5 class="card-title fw-semibold mb-0">Asistencias por Escuela</h5>
             </div>
             <div class="card-body p-4">
                 <div style="height: 250px;">
                     <canvas id="facultyAttendanceChart"></canvas>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Actividad Reciente -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow border-0">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="card-title fw-semibold mb-0">Actividad Reciente</h5>
-            </div>
-            <div class="card-body p-4">
-                <ul class="list-unstyled mb-0">
-                    @forelse($recentActivities ?? [] as $activity)
-                        <li class="d-flex align-items-start mb-3">
-                            <div class="flex-shrink-0">
-                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 text-primary" style="width: 32px; height: 32px;">
-                                    <span class="fw-medium small">
-                                        {{ $activity->user ? substr($activity->user->name, 0, 1) : '?' }}
-                                    </span>
-                                </span>
-                            </div>
-                            <div class="ms-3">
-                                <p class="mb-1 fw-medium">{{ $activity->description }}</p>
-                                <small class="text-muted">{{ $activity->created_at->diffForHumans() }}</small>
-                            </div>
-                        </li>
-                    @empty
-                        <li class="text-center text-muted py-4">
-                            <i class="bi bi-inbox fs-1 mb-2 d-block opacity-50"></i>
-                            <p class="mb-0">No hay actividad reciente</p>
-                        </li>
-                    @endforelse
-                </ul>
             </div>
         </div>
     </div>

@@ -12,7 +12,7 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        // CAMBIO: Agregamos código para recuperar las facultades con conteos
+        // CAMBIO: Agregamos código para recuperar las escuelas con conteos
         $faculties = Faculty::withCount(['courses', 'students'])->paginate(10);
         return view('admin.faculties.index', compact('faculties'));
     }
@@ -31,7 +31,7 @@ class FacultyController extends Controller
      */
     public function store(Request $request)
     {
-        // CAMBIO: Agregamos validación y creación de facultad
+        // CAMBIO: Agregamos validación y creación de escuela
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:faculties',
@@ -40,7 +40,7 @@ class FacultyController extends Controller
         Faculty::create($request->all());
 
         return redirect()->route('admin.faculties.index')
-            ->with('success', 'Facultad creada exitosamente.');
+            ->with('success', 'Escuela creada exitosamente.');
     }
 
     /**
@@ -75,7 +75,7 @@ class FacultyController extends Controller
         $faculty->update($request->all());
 
         return redirect()->route('admin.faculties.index')
-            ->with('success', 'Facultad actualizada exitosamente.');
+            ->with('success', 'Escuela actualizada exitosamente.');
     }
 
     /**
@@ -87,10 +87,10 @@ class FacultyController extends Controller
         try {
             $faculty->delete();
             return redirect()->route('admin.faculties.index')
-                ->with('success', 'Facultad eliminada exitosamente.');
+                ->with('success', 'Escuela eliminada exitosamente.');
         } catch (\Exception $e) {
             return redirect()->route('admin.faculties.index')
-                ->with('error', 'No se puede eliminar la facultad porque tiene registros asociados.');
+                ->with('error', 'No se puede eliminar la escuela porque tiene registros asociados.');
         }
     }
 }

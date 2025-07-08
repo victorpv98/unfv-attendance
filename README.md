@@ -8,7 +8,7 @@ Sistema de gestión de asistencia mediante códigos QR para la Universidad Nacio
 
 ## Características
 
-- **Gestión de Facultades, Cursos y Horarios**: Administración completa de la estructura académica
+- **Gestión de Escuelas, Cursos y Horarios**: Administración completa de la estructura académica
 - **Registro de Profesores y Estudiantes**: Control de usuarios con diferentes roles y permisos
 - **Generación de Códigos QR**: Cada estudiante recibe un código QR único para su identificación
 - **Escaneo de Asistencia**: Interfaz móvil para que profesores escaneen los códigos QR de los estudiantes
@@ -110,14 +110,14 @@ Sistema de gestión de asistencia mediante códigos QR para la Universidad Nacio
 
 ### Roles de Usuario
 
-- **Administrador**: Gestión completa del sistema (facultades, cursos, profesores, estudiantes)
+- **Administrador**: Gestión completa del sistema (escuelas, cursos, profesores, estudiantes)
 - **Profesor**: Gestión de asistencias en sus cursos asignados
 - **Estudiante**: Visualización de su código QR y asistencias registradas
 
 ### Módulos Principales
 
-- **Gestión de Facultades**: Administración de las facultades de la universidad
-- **Gestión de Cursos**: Configuración de cursos, asignación a facultades
+- **Gestión de Escuelas**: Administración de las escuelas de la universidad
+- **Gestión de Cursos**: Configuración de cursos, asignación a escuelas
 - **Gestión de Horarios**: Definición de horarios para cursos y profesores
 - **Gestión de Estudiantes**: Administración de perfiles de estudiantes
 - **Gestión de Matricula**: Administración de los estudiantes matriculados

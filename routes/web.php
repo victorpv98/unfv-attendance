@@ -60,7 +60,7 @@ Route::middleware(['auth'])->group(function () {
         // Dashboard del administrador
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
         
-        // Gestión de facultades
+        // Gestión de escuelas
         Route::resource('faculties', FacultyController::class)->names([
             'index' => 'admin.faculties.index',
             'create' => 'admin.faculties.create',

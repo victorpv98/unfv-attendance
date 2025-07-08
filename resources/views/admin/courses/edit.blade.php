@@ -36,10 +36,10 @@
             </div>
 
             <div class="mb-3">
-                <label for="faculty_id" class="form-label fw-medium">Facultad</label>
+                <label for="faculty_id" class="form-label fw-medium">Escuela</label>
                 <select class="form-select @error('faculty_id') is-invalid @enderror" 
                     id="faculty_id" name="faculty_id" required>
-                    <option value="">Seleccione una facultad</option>
+                    <option value="">Seleccione una escuela</option>
                     @foreach($faculties as $faculty)
                         <option value="{{ $faculty->id }}" {{ old('faculty_id', $course->faculty_id) == $faculty->id ? 'selected' : '' }}>
                             {{ $faculty->name }}

@@ -80,7 +80,7 @@
                                     <p class="fw-medium mb-0">{{ $student->code }}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="small text-muted mb-1">Facultad</p>
+                                    <p class="small text-muted mb-1">Escuela</p>
                                     <p class="fw-medium mb-0">{{ $student->faculty->name ?? 'No asignada' }}</p>
                                 </div>
                                 <div class="col-md-6">

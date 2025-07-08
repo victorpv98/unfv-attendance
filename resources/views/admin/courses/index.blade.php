@@ -61,7 +61,7 @@
                             <th scope="col" class="fw-semibold text-primary small py-3">ID</th>
                             <th scope="col" class="fw-semibold text-primary small py-3">Nombre</th>
                             <th scope="col" class="fw-semibold text-primary small py-3">Código</th>
-                            <th scope="col" class="fw-semibold text-primary small py-3">Facultad</th>
+                            <th scope="col" class="fw-semibold text-primary small py-3">Escuela</th>
                             <th scope="col" class="fw-semibold text-primary small py-3">Créditos</th>
                             <th scope="col" class="fw-semibold text-primary small py-3">Ciclo</th>
                             <th scope="col" class="fw-semibold text-primary small py-3 text-end">Acciones</th>
