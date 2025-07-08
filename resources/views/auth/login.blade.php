@@ -56,12 +56,12 @@
                                 </div>
 
                                 <!-- Remember Me -->
-                                <div class="form-check mb-4">
+                                {{-- <div class="form-check mb-4">
                                     <input id="remember_me" type="checkbox" class="form-check-input" name="remember">
                                     <label for="remember_me" class="form-check-label">
                                         {{ __('Recordar sesión') }}
                                     </label>
-                                </div>
+                                </div> --}}
 
                                 <!-- Login Button -->
                                 <div class="d-grid mb-3">
@@ -72,14 +72,14 @@
                                 </div>
 
                                 <!-- Forgot Password Link -->
-                                @if (Route::has('password.request'))
+                                {{-- @if (Route::has('password.request'))
                                     <div class="text-center">
                                         <a class="text-decoration-none small text-primary" href="{{ route('password.request') }}">
                                             <i class="fas fa-key me-1"></i>
                                             {{ __('¿Olvidaste tu contraseña?') }}
                                         </a>
                                     </div>
-                                @endif
+                                @endif --}}
                             </form>
                         </div>
                         

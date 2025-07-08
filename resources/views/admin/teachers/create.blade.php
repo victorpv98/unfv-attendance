@@ -117,7 +117,7 @@
                 </label>
                 <input type="text" class="form-control @error('specialty') is-invalid @enderror" 
                     id="specialty" name="specialty" value="{{ old('specialty') }}" 
-                    placeholder="Ej: Ingeniería de Software, Redes y Comunicaciones" required>
+                    placeholder="Ej: Ingeniería de Informática, etc." required>
                 @error('specialty')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

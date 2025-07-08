@@ -8,7 +8,7 @@
     <div class="card shadow border-0">
         <div class="card-body p-4">
             <div class="mb-4">
-                <h2 class="fs-1 fw-semibold mb-2">
+                <h2 class="fs-1 fw-semibold mb-1 text-primary">
                     <i class="fas fa-barcode me-3 text-primary"></i>
                     Mi Código de Barras de Asistencia
                 </h2>
@@ -64,44 +64,38 @@
                         </div>
                     </div>
                     
-                    <div class="card bg-light border-0">
+                    <div class="card bg-light border-0 mb-3">
                         <div class="card-body p-4">
-                            <h5 class="card-title fw-semibold mb-3">
+                            <h5 class="card-title fw-semibold mb-3 text-secondary">
                                 <i class="fas fa-user me-2"></i>
                                 Información Personal
                             </h5>
-                            <div class="row row-gap-3">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="small text-muted mb-1">Nombre</p>
-                                    <p class="fw-medium mb-0">{{ $student->user->name }}</p>
+                                    <div class="border-start border-primary border-3 ps-3">
+                                        <p class="small text-muted mb-1">Estudiante</p>
+                                        <p class="fw-semibold mb-0">{{ $student->user->name }}</p>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="small text-muted mb-1">Código de Estudiante</p>
-                                    <p class="fw-medium mb-0">{{ $student->code }}</p>
+                                    <div class="border-start border-secondary border-3 ps-3">
+                                        <p class="small text-muted mb-1">Código</p>
+                                        <p class="fw-semibold mb-0">{{ $student->code }}</p>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="small text-muted mb-1">Escuela</p>
-                                    <p class="fw-medium mb-0">{{ $student->faculty->name ?? 'No asignada' }}</p>
+                                    <div class="border-start border-info border-3 ps-3">
+                                        <p class="small text-muted mb-1">Facultad</p>
+                                        <p class="fw-semibold mb-0">{{ $student->faculty->name ?? 'No asignada' }}</p>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="small text-muted mb-1">Ciclo</p>
-                                    <p class="fw-medium mb-0">{{ $student->cycle ?? 'No asignado' }}</p>
+                                    <div class="border-start border-warning border-3 ps-3">
+                                        <p class="small text-muted mb-1">Ciclo Académico</p>
+                                        <p class="fw-semibold mb-0">{{ $student->cycle ?? 'No asignado' }}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card bg-success bg-opacity-10 border-success border-opacity-25 mt-3">
-                        <div class="card-body p-3">
-                            <h6 class="card-title fw-semibold text-success mb-2">
-                                <i class="fas fa-shield-alt me-2"></i>
-                                Código Único y Seguro
-                            </h6>
-                            <p class="small mb-0 text-dark">
-                                <strong>Tu código de barras es único y permanente</strong>, basado en tu código de estudiante. 
-                                No puede ser modificado ni duplicado, garantizando la seguridad del sistema de asistencias. 
-                                <strong>No compartas</strong> este código con otros estudiantes.
-                            </p>
                         </div>
                     </div>
                 </div>

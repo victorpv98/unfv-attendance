@@ -6,14 +6,14 @@
 
 @section('content')
 <div class="container">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-barcode me-2"></i>
+    <div class="card shadow border-0 rounded-3 mb-4">
+        <div class="card-header bg-primary bg-opacity-10 border-0 py-3 d-flex flex-row align-items-center justify-content-between">
+            <h5 class="mb-0 fw-semibold text-primary">
+                <i class="fas fa-qrcode me-2"></i>
                 Escanear Asistencia por Código de Barras
-            </h6>
+            </h5>
             <a href="{{ route('teachers.my-schedules') }}" class="btn btn-sm btn-secondary">
-                <i class="fas fa-arrow-left"></i> Volver a Horarios
+                <i class="fas fa-arrow-left me-1"></i> Volver a Horarios
             </a>
         </div>
         <div class="card-body">
@@ -23,41 +23,42 @@
                         <i class="fas fa-book text-primary fa-lg"></i>
                     </div>
                     <div>
-                        <h4 class="mb-1">{{ $schedule->course->name }}</h4>
-                        <p class="text-muted mb-0">
-                            <i class="far fa-clock me-1"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }} | 
-                            <i class="fas fa-map-marker-alt me-1"></i> {{ $schedule->classroom }} | 
-                            <i class="far fa-calendar-alt me-1"></i> {{ __($schedule->day) }}
-                        </p>
+                        <h4 class="mb-1 text-dark">{{ $schedule->course->name }}</h4>
+                        <div class="d-flex flex-wrap gap-3 text-muted">
+                            <span><i class="fas fa-clock me-1 text-primary"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
+                            <span><i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ $schedule->classroom }}</span>
+                            <span><i class="fas fa-calendar-alt me-1 text-primary"></i> {{ __($schedule->day) }}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="alert alert-info border-0">
+                <div class="alert alert-info border-0 bg-info bg-opacity-10">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-info-circle me-2"></i>
+                        <i class="fas fa-info-circle me-2 text-info"></i>
                         <div>
-                            <strong>Fecha actual:</strong> {{ now()->format('d/m/Y') }} - {{ now()->format('H:i') }}
+                            <strong class="text-info">Fecha actual:</strong> 
+                            <span class="text-dark">{{ now()->format('d/m/Y') }} - {{ now()->format('H:i') }}</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-lg-6 mb-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-gradient-primary text-white">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-primary text-white border-0">
                             <h5 class="card-title mb-0">
-                                <i class="fas fa-barcode me-2"></i>
+                                <i class="fas fa-qrcode me-2"></i>
                                 Lector de Código de Barras
                             </h5>
                         </div>
                         <div class="card-body">
                             <!-- Escáner de cámara -->
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-camera me-1"></i>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-camera me-1 text-primary"></i>
                                     Escáner por Cámara
                                 </label>
-                                <div id="barcode-reader" class="border rounded p-2 mb-3"></div>
+                                <div id="barcode-reader" class="border border-primary rounded-2 p-3 mb-3 bg-light"></div>
                                 <div class="d-grid gap-2">
                                     <button id="start-scanner" class="btn btn-primary">
                                         <i class="fas fa-play me-1"></i> Iniciar Escáner
@@ -68,28 +69,28 @@
                                 </div>
                             </div>
                             
-                            <hr>
+                            <hr class="my-4">
                             
                             <!-- Entrada manual -->
                             <div class="mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-keyboard me-1"></i>
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-keyboard me-1 text-primary"></i>
                                     Entrada Manual
                                 </label>
                                 <div class="input-group">
                                     <input type="text" 
                                            id="manual-barcode" 
-                                           class="form-control" 
+                                           class="form-control border-primary" 
                                            placeholder="Escriba el código aquí o use lector externo..."
                                            autocomplete="off"
                                            maxlength="20">
                                     <button type="button" 
                                             id="submit-manual" 
                                             class="btn btn-success">
-                                        <i class="fas fa-check"></i> Procesar
+                                        <i class="fas fa-check me-1"></i> Procesar
                                     </button>
                                 </div>
-                                <small class="form-text text-muted">
+                                <small class="form-text text-muted mt-2">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Escriba el código completo y presione "Procesar" o Enter
                                 </small>
@@ -102,13 +103,13 @@
                 </div>
                 
                 <div class="col-lg-6">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-gradient-success text-white d-flex justify-content-between align-items-center">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-success text-white border-0 d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">
                                 <i class="fas fa-clipboard-check me-2"></i>
                                 Asistencias Registradas Hoy
                             </h5>
-                            <span class="badge bg-white text-dark" id="attendance-counter">{{ count($attendances) }}</span>
+                            <span class="badge bg-white text-success fw-bold" id="attendance-counter">{{ count($attendances) }}</span>
                         </div>
                         <div class="card-body p-0">
                             <div id="attendance-list" style="max-height: 450px; overflow-y: auto;">
@@ -121,34 +122,34 @@
                                                         <i class="fas {{ $attendance->status === 'present' ? 'fa-check' : 'fa-clock' }} {{ $attendance->status === 'present' ? 'text-success' : 'text-warning' }}"></i>
                                                     </div>
                                                     <div>
-                                                        <h6 class="mb-1">{{ $attendance->student->user->name }}</h6>
+                                                        <h6 class="mb-1 text-dark">{{ $attendance->student->user->name }}</h6>
                                                         <small class="text-muted">
-                                                            <i class="far fa-clock me-1"></i>{{ $attendance->time }}
+                                                            <i class="fas fa-clock me-1"></i>{{ $attendance->time }}
                                                         </small>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <span class="badge {{ $attendance->status === 'present' ? 'bg-success' : 'bg-warning' }}">
+                                            <span class="badge {{ $attendance->status === 'present' ? 'bg-success' : 'bg-warning text-dark' }} px-3 py-2">
                                                 {{ $attendance->status === 'present' ? 'Presente' : 'Tardanza' }}
                                             </span>
                                         </div>
                                     </div>
                                 @empty
                                     <div class="text-center py-5" id="no-attendance-message">
-                                        <i class="fas fa-clipboard-list text-muted fa-3x mb-3"></i>
+                                        <i class="fas fa-clipboard-list text-muted fa-4x mb-3 opacity-50"></i>
                                         <h5 class="text-muted">No hay asistencias registradas</h5>
                                         <p class="text-muted mb-0">Las asistencias aparecerán aquí cuando sean escaneadas.</p>
                                     </div>
                                 @endforelse
                             </div>
                         </div>
-                        <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                        <div class="card-footer bg-light border-0 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <i class="fas fa-users me-2 text-muted"></i>
-                                <span class="text-muted">Total: <strong id="total-count">{{ count($attendances) }}</strong></span>
+                                <i class="fas fa-users me-2 text-primary"></i>
+                                <span class="text-dark">Total: <strong id="total-count">{{ count($attendances) }}</strong></span>
                             </div>
                             <a href="{{ route('attendance.report', $schedule) }}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-clipboard-list"></i> Ver Reporte Completo
+                                <i class="fas fa-chart-line me-1"></i> Ver Reporte Completo
                             </a>
                         </div>
                     </div>
@@ -175,16 +176,9 @@
         border-radius: 0.375rem;
     }
     
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    }
-    
-    .bg-gradient-success {
-        background: linear-gradient(135deg, #198754 0%, #146c43 100%);
-    }
-    
     .attendance-item:hover {
-        background-color: #f8f9fa;
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+        transition: background-color 0.2s ease;
     }
     
     .scanner-inactive {
@@ -192,16 +186,49 @@
         border: 2px dashed #dee2e6;
         color: #6c757d;
         font-size: 1.1rem;
+        border-radius: 0.375rem;
     }
     
     .pulse-animation {
         animation: pulse 2s infinite;
+        background-color: rgba(var(--bs-success-rgb), 0.1) !important;
     }
     
     @keyframes pulse {
         0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+        50% { transform: scale(1.02); }
         100% { transform: scale(1); }
+    }
+    
+    /* Mejoras para el input de código manual */
+    #manual-barcode:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+    
+    /* Estilos para las alertas de resultado */
+    .alert {
+        border-radius: 0.5rem;
+    }
+    
+    .alert-success {
+        background-color: rgba(var(--bs-success-rgb), 0.1);
+        border-color: var(--bs-success);
+    }
+    
+    .alert-warning {
+        background-color: rgba(var(--bs-warning-rgb), 0.1);
+        border-color: var(--bs-warning);
+    }
+    
+    .alert-danger {
+        background-color: rgba(var(--bs-danger-rgb), 0.1);
+        border-color: var(--bs-danger);
+    }
+    
+    .alert-info {
+        background-color: rgba(var(--bs-info-rgb), 0.1);
+        border-color: var(--bs-info);
     }
 </style>
 @endpush
@@ -225,9 +252,10 @@
         
         // Inicializar el estado del escáner
         barcodeReaderDiv.innerHTML = `
-            <div class="scanner-inactive text-center">
-                <i class="fas fa-barcode fa-3x mb-2"></i>
-                <p class="mb-0">Haga clic en "Iniciar Escáner" para comenzar</p>
+            <div class="scanner-inactive text-center w-100 py-4">
+                <i class="fas fa-qrcode fa-3x text-primary mb-3"></i>
+                <h6 class="text-muted">Lector de Código de Barras</h6>
+                <p class="mb-0 small">Haga clic en "Iniciar Escáner" para comenzar</p>
             </div>
         `;
         
@@ -261,7 +289,7 @@
                 startScannerBtn.style.display = 'none';
                 stopScannerBtn.style.display = 'block';
                 
-                barcodeReaderDiv.innerHTML = '<video id="video-element" style="width: 100%; max-width: 400px;"></video>';
+                barcodeReaderDiv.innerHTML = '<video id="video-element" class="w-100 rounded-2" style="max-width: 400px;"></video>';
                 
                 const result = await codeReader.decodeFromVideoDevice(
                     selectedDeviceId, 
@@ -295,9 +323,10 @@
             startScannerBtn.style.display = 'block';
             stopScannerBtn.style.display = 'none';
             barcodeReaderDiv.innerHTML = `
-                <div class="scanner-inactive text-center">
-                    <i class="fas fa-barcode fa-3x mb-2"></i>
-                    <p class="mb-0">Escáner detenido. Haga clic en "Iniciar Escáner" para continuar</p>
+                <div class="scanner-inactive text-center w-100 py-4">
+                    <i class="fas fa-qrcode fa-3x text-primary mb-3"></i>
+                    <h6 class="text-muted">Escáner detenido</h6>
+                    <p class="mb-0 small">Haga clic en "Iniciar Escáner" para continuar</p>
                 </div>
             `;
         }
@@ -349,7 +378,6 @@
             })
             .then(response => {
                 console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -407,10 +435,13 @@
             resultDiv.innerHTML = `
                 <div class="alert alert-info border-0">
                     <div class="d-flex align-items-center">
-                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <div class="spinner-border spinner-border-sm me-3 text-info" role="status">
                             <span class="visually-hidden">Procesando...</span>
                         </div>
-                        <div>Procesando código de barras...</div>
+                        <div>
+                            <strong class="text-info">Procesando código de barras...</strong>
+                            <p class="mb-0 small">Por favor espere...</p>
+                        </div>
                     </div>
                 </div>
             `;
@@ -421,15 +452,16 @@
             let alertClass = data.status === 'present' ? 'alert-success' : 'alert-warning';
             let iconClass = data.status === 'present' ? 'fa-check-circle' : 'fa-clock';
             let statusText = data.status === 'present' ? 'Presente' : 'Tardanza';
+            let textColor = data.status === 'present' ? 'text-success' : 'text-warning';
             
             resultDiv.innerHTML = `
                 <div class="alert ${alertClass} border-0">
                     <div class="d-flex align-items-center">
-                        <i class="fas ${iconClass} fa-lg me-2"></i>
-                        <div>
-                            <strong>${data.student}</strong>
-                            <p class="mb-0">${data.message}</p>
-                            <span class="badge ${data.status === 'present' ? 'bg-success' : 'bg-warning'}">${statusText}</span>
+                        <i class="fas ${iconClass} fa-lg me-3 ${textColor}"></i>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 ${textColor}">${data.student}</h6>
+                            <p class="mb-2 text-dark">${data.message}</p>
+                            <span class="badge ${data.status === 'present' ? 'bg-success' : 'bg-warning text-dark'} px-3 py-2">${statusText}</span>
                         </div>
                     </div>
                 </div>
@@ -441,8 +473,11 @@
             resultDiv.innerHTML = `
                 <div class="alert alert-danger border-0">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <div>${message}</div>
+                        <i class="fas fa-exclamation-triangle fa-lg me-3 text-danger"></i>
+                        <div>
+                            <h6 class="mb-1 text-danger">Error</h6>
+                            <p class="mb-0 text-dark">${message}</p>
+                        </div>
                     </div>
                 </div>
             `;
@@ -461,6 +496,7 @@
             const statusClass = data.status === 'present' ? 'success' : 'warning';
             const iconClass = data.status === 'present' ? 'fa-check' : 'fa-clock';
             const statusText = data.status === 'present' ? 'Presente' : 'Tardanza';
+            const badgeClass = data.status === 'present' ? 'bg-success' : 'bg-warning text-dark';
             
             const newAttendanceHtml = `
                 <div class="border-bottom p-3 attendance-item pulse-animation">
@@ -471,14 +507,14 @@
                                     <i class="fas ${iconClass} text-${statusClass}"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-1">${data.student}</h6>
+                                    <h6 class="mb-1 text-dark">${data.student}</h6>
                                     <small class="text-muted">
-                                        <i class="far fa-clock me-1"></i>${timeStr}
+                                        <i class="fas fa-clock me-1"></i>${timeStr}
                                     </small>
                                 </div>
                             </div>
                         </div>
-                        <span class="badge bg-${statusClass}">
+                        <span class="badge ${badgeClass} px-3 py-2">
                             ${statusText}
                         </span>
                     </div>
@@ -509,7 +545,7 @@
         
         // Entrada manual de código de barras
         submitManualBtn.addEventListener('click', function() {
-            const barcodeValue = cleanBarcodeInput(manualBarcodeInput.value.trim()); // Limpiar aquí también
+            const barcodeValue = cleanBarcodeInput(manualBarcodeInput.value.trim());
             if (barcodeValue) {
                 showProcessing();
                 processBarcodeAttendance(barcodeValue);
@@ -526,23 +562,16 @@
             }
         });
         
-        // Auto-focus en el campo manual para lectores externos
-        manualBarcodeInput.addEventListener('input', function() {
-            // DESACTIVADO: Auto-procesamiento automático
-            // Solo mantener el input activo para lectores externos
-            // El usuario debe hacer clic en "Procesar" o presionar Enter
-        });
-        
-        // Mantener el foco en el campo manual (solo si no hay video activo)
+        // Mantener el foco en el campo manual (mejorado)
         setInterval(() => {
             if (document.activeElement !== manualBarcodeInput && 
                 !document.querySelector('video') &&
-                manualBarcodeInput.value === '') { // Solo si el campo está vacío
+                manualBarcodeInput.value === '') {
                 manualBarcodeInput.focus();
             }
-        }, 2000); // Reducido a cada 2 segundos y más restrictivo
+        }, 2000);
         
-        // Limpiar resultados después de 15 segundos (sin interferir con la escritura)
+        // Limpiar resultados después de 15 segundos
         let clearResultsTimeout;
         function scheduleResultsClear() {
             clearTimeout(clearResultsTimeout);
@@ -553,7 +582,7 @@
             }, 15000);
         }
         
-        // Programar limpieza solo cuando sea necesario
+        // Programar limpieza cuando sea necesario
         const originalShowSuccess = showSuccess;
         const originalShowError = showError;
         

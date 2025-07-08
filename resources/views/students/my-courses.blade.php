@@ -5,47 +5,70 @@
 @endsection
 
 @section('content')
-    <div class="card shadow border-0 mb-4">
+    <div class="card shadow border-0 rounded-3 mb-4">
         <div class="card-body p-4">
             <div class="mb-4">
-                <h2 class="fs-1 fw-semibold mb-2">Mis Cursos Matriculados</h2>
-                <p class="text-muted">Semestre: {{ $currentSemester }}</p>
+                <h2 class="fs-1 fw-semibold text-primary mb-2">Mis Cursos Matriculados</h2>
+                <p class="text-muted">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    Semestre: <span class="fw-medium">{{ $currentSemester }}</span>
+                </p>
             </div>
 
-            <div class="row row-gap-4">
+            <div class="row g-4">
                 @forelse($courses as $course)
                     <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 border rounded shadow-sm">
-                            <div class="card-header bg-primary text-white p-3">
+                        <div class="card h-100 border-0 rounded-3 shadow-sm">
+                            <div class="card-header bg-primary text-white p-3 border-0 rounded-top-3">
                                 <h5 class="card-title mb-1">{{ $course->name }}</h5>
-                                <p class="card-subtitle text-white-50 mb-0">{{ $course->code }}</p>
+                                <p class="card-subtitle mb-0 opacity-75">
+                                    <i class="fas fa-code me-1"></i>{{ $course->code }}
+                                </p>
                             </div>
                             <div class="card-body p-3">
-                                <p class="text-muted small mb-2">Escuela: {{ $course->faculty->name }}</p>
-                                <p class="text-muted small mb-2">Créditos: {{ $course->credits }}</p>
-                                <p class="text-muted small mb-3">Ciclo: {{ $course->cycle }}</p>
-                                
                                 <div class="mb-3">
-                                    <h6 class="fw-medium small text-dark mb-2">Horarios</h6>
-                                    <ul class="list-unstyled">
-                                        @foreach($course->schedules as $schedule)
-                                            <li class="bg-light p-2 rounded mb-2 small">
-                                                <span class="fw-medium">{{ __($schedule->day) }}: </span>
-                                                <span>{{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
-                                                <br>
-                                                <span class="text-muted">Aula: {{ $schedule->classroom }}</span>
-                                                <br>
-                                                <span class="text-muted">Profesor: {{ $schedule->teacher->user->name }}</span>
-                                            </li>
-                                        @endforeach
-                                    </ul>
+                                    <p class="text-muted small mb-1">
+                                        <i class="fas fa-university me-1"></i>Escuela: {{ $course->faculty->name }}
+                                    </p>
+                                    <p class="text-muted small mb-1">
+                                        <i class="fas fa-award me-1"></i>Créditos: {{ $course->credits }}
+                                    </p>
+                                    <p class="text-muted small mb-0">
+                                        <i class="fas fa-layer-group me-1"></i>Ciclo: {{ $course->cycle }}
+                                    </p>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <h6 class="fw-medium small text-dark mb-2">Asistencia</h6>
+                                    <h6 class="fw-semibold small text-dark mb-2">
+                                        <i class="fas fa-clock me-1 text-primary"></i>Horarios
+                                    </h6>
+                                    <div class="border rounded p-2" style="background-color: #f8f9fa;">
+                                        @foreach($course->schedules as $schedule)
+                                            <div class="mb-2 @if(!$loop->last) border-bottom pb-2 @endif">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <span class="badge bg-info text-dark small">{{ __($schedule->day) }}</span>
+                                                    <span class="small fw-medium">{{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
+                                                </div>
+                                                <div class="mt-1">
+                                                    <small class="text-muted d-block">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>Aula: {{ $schedule->classroom }}
+                                                    </small>
+                                                    <small class="text-muted d-block">
+                                                        <i class="fas fa-chalkboard-teacher me-1"></i>Prof: {{ $schedule->teacher->user->name }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6 class="fw-semibold small text-dark mb-2">
+                                        <i class="fas fa-chart-line me-1 text-success"></i>Asistencia
+                                    </h6>
                                     <div class="d-flex align-items-center">
                                         <div class="flex-grow-1 me-2">
-                                            <div class="progress" style="height: 6px;">
+                                            <div class="progress" style="height: 8px;">
                                                 <div 
                                                     class="progress-bar bg-success" 
                                                     role="progressbar" 
@@ -56,26 +79,30 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="small fw-medium text-muted">
+                                        <span class="small fw-semibold text-success">
                                             {{ $coursesAttendance[$course->id]['percentage'] ?? 0 }}%
                                         </span>
                                     </div>
                                 </div>
                                 
-                                <a href="{{ route('students.course-attendances', $course) }}" class="btn btn-link text-primary p-0 small fw-medium">
-                                    Ver detalle de asistencias →
+                                <a href="{{ route('students.course-attendances', $course) }}" class="btn btn-outline-primary btn-sm w-100">
+                                    <i class="fas fa-eye me-1"></i>Ver detalle de asistencias
                                 </a>
                             </div>
                         </div>
                     </div>
                 @empty
                     <div class="col-12">
-                        <div class="alert alert-warning text-center py-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="d-block mx-auto mb-3 text-warning">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <h5 class="fw-medium text-dark mb-2">No estás matriculado en ningún curso</h5>
-                            <p class="small mb-0">Contacta con administración para matricularte en tus cursos.</p>
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-exclamation-triangle fa-4x text-warning opacity-50"></i>
+                            </div>
+                            <h4 class="fw-semibold text-dark mb-2">No estás matriculado en ningún curso</h4>
+                            <p class="text-muted mb-4">Contacta con administración para matricularte en tus cursos.</p>
+                            <div class="alert alert-info d-inline-block">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Comunícate con la oficina de registros académicos para más información.
+                            </div>
                         </div>
                     </div>
                 @endforelse
@@ -84,14 +111,19 @@
     </div>
 
     @if(!empty($pastSemesters))
-        <div class="card shadow border-0">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header bg-light border-0 rounded-top-3 p-4">
+                <h5 class="card-title fw-semibold mb-0 text-secondary">
+                    <i class="fas fa-history me-2"></i>Historial Académico
+                </h5>
+            </div>
             <div class="card-body p-4">
-                <h5 class="card-title fw-semibold mb-4">Historial Académico</h5>
-                
                 <div class="mb-4">
-                    <form action="{{ route('students.my-courses') }}" method="GET" class="d-flex gap-3 align-items-end">
-                        <div>
-                            <label for="semester" class="form-label small fw-medium">Semestre</label>
+                    <form action="{{ route('students.my-courses') }}" method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="semester" class="form-label small fw-semibold">
+                                <i class="fas fa-calendar me-1"></i>Seleccionar Semestre
+                            </label>
                             <select id="semester" name="semester" class="form-select">
                                 @foreach($pastSemesters as $semester)
                                     <option value="{{ $semester }}" {{ request('semester') == $semester ? 'selected' : '' }}>
@@ -101,9 +133,9 @@
                             </select>
                         </div>
                         
-                        <div>
+                        <div class="col-md-3">
                             <button type="submit" class="btn btn-secondary">
-                                Ver Cursos
+                                <i class="fas fa-search me-1"></i>Ver Cursos
                             </button>
                         </div>
                     </form>
@@ -111,25 +143,29 @@
                 
                 @if(isset($pastCourses) && count($pastCourses) > 0)
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-primary bg-opacity-10">
                                 <tr>
-                                    <th scope="col" class="fw-medium text-uppercase text-muted small">Curso</th>
-                                    <th scope="col" class="fw-medium text-uppercase text-muted small">Código</th>
-                                    <th scope="col" class="fw-medium text-uppercase text-muted small">Créditos</th>
-                                    <th scope="col" class="fw-medium text-uppercase text-muted small">Asistencia</th>
+                                    <th scope="col" class="fw-semibold text-primary small py-3">Curso</th>
+                                    <th scope="col" class="fw-semibold text-primary small py-3">Código</th>
+                                    <th scope="col" class="fw-semibold text-primary small py-3">Créditos</th>
+                                    <th scope="col" class="fw-semibold text-primary small py-3">Asistencia</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($pastCourses as $course)
-                                    <tr>
-                                        <td class="fw-medium">{{ $course->name }}</td>
-                                        <td class="text-muted">{{ $course->code }}</td>
-                                        <td class="text-muted">{{ $course->credits }}</td>
-                                        <td>
+                                    <tr class="border-bottom">
+                                        <td class="fw-medium py-3">{{ $course->name }}</td>
+                                        <td class="py-3">
+                                            <code class="bg-light px-2 py-1 rounded">{{ $course->code }}</code>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="badge bg-info">{{ $course->credits }} créditos</span>
+                                        </td>
+                                        <td class="py-3">
                                             <div class="d-flex align-items-center">
-                                                <div style="width: 80px;" class="me-2">
-                                                    <div class="progress" style="height: 6px;">
+                                                <div style="width: 100px;" class="me-3">
+                                                    <div class="progress" style="height: 8px;">
                                                         <div 
                                                             class="progress-bar bg-success" 
                                                             role="progressbar" 
@@ -140,7 +176,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <span class="small">
+                                                <span class="small fw-semibold text-success">
                                                     {{ $pastCoursesAttendance[$course->id]['percentage'] ?? 0 }}%
                                                 </span>
                                             </div>
@@ -151,7 +187,10 @@
                         </table>
                     </div>
                 @else
-                    <p class="text-muted">No hay cursos disponibles para el semestre seleccionado.</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-folder-open fa-3x text-muted opacity-50 mb-3"></i>
+                        <p class="text-muted mb-0">No hay cursos disponibles para el semestre seleccionado.</p>
+                    </div>
                 @endif
             </div>
         </div>
