@@ -249,7 +249,7 @@
         const scheduleId = {{ $schedule->id }};
         
         // URL corregida para el endpoint
-        const registerUrl = '{{ route("attendance.register-by-barcode") }}';
+        const registerUrl = '/teacher/register-attendance-barcode';
         const csrfToken = '{{ csrf_token() }}';
         
         // Inicializar el estado del escáner
@@ -352,7 +352,7 @@
             return cleanCode.trim();
         }
         
-        // Función para procesar la asistencia - CORREGIDA
+        // Función para procesar la asistencia 
         function processBarcodeAttendance(barcodeCode) {
             const cleanedCode = cleanBarcodeInput(barcodeCode);
             
