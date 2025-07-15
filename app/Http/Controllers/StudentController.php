@@ -235,7 +235,6 @@ class StudentController extends Controller
         // Obtener los cursos del estudiante para el semestre actual desde la tabla pivote
         $courses = $student->courses()
             ->with(['faculty', 'schedules', 'schedules.teacher.user'])
-            ->wherePivot('semester', $currentSemester)
             ->get();
         
         // Calcular el porcentaje de asistencia para cada curso
