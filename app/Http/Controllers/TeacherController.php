@@ -207,4 +207,22 @@ class TeacherController extends Controller
         
         return view('teachers.scan-barcode', compact('schedule', 'attendances'));
     }
+    
+    public function updateTolerance(Request $request, \App\Models\Schedule $schedule)
+    {
+        $request->validate([
+            'tardiness_tolerance' => 'required|integer|min:0|max:60',
+        ]);
+
+        // Asegurar que el horario pertenece al profesor autenticado
+        $teacher = Teacher::where('user_id', auth()->id())->firstOrFail();
+        if ($schedule->teacher_id !== $teacher->id) {
+            abort(403, 'No tienes permiso para modificar este horario.');
+        }
+
+        $schedule->tardiness_tolerance = $request->tardiness_tolerance;
+        $schedule->save();
+
+        return back()->with('success', 'Tolerancia actualizada.');
+    }
 }

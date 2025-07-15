@@ -200,13 +200,11 @@
         100% { transform: scale(1); }
     }
     
-    /* Mejoras para el input de código manual */
     #manual-barcode:focus {
         border-color: var(--bs-primary);
         box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
     }
     
-    /* Estilos para las alertas de resultado */
     .alert {
         border-radius: 0.5rem;
     }
@@ -249,6 +247,10 @@
         const attendanceCounter = document.getElementById('attendance-counter');
         const totalCount = document.getElementById('total-count');
         const scheduleId = {{ $schedule->id }};
+        
+        // URL corregida para el endpoint
+        const registerUrl = '{{ route("attendance.register-by-barcode") }}';
+        const csrfToken = '{{ csrf_token() }}';
         
         // Inicializar el estado del escáner
         barcodeReaderDiv.innerHTML = `
@@ -333,42 +335,42 @@
         
         // Función cuando se detecta un código de barras
         function onBarcodeDetected(barcodeText) {
-            // Pausar temporalmente el escáner
             if (codeReader) {
                 codeReader.reset();
             }
-            
-            // Mostrar mensaje de procesamiento
             showProcessing();
-            
-            // Procesar el código de barras
             processBarcodeAttendance(barcodeText);
         }
         
         // Función para limpiar código de barras
         function cleanBarcodeInput(barcode) {
-            // Remover sufijos comunes de escáneres para Code 39
-            let cleanCode = barcode.replace(/([\s+]code\s*(39|128|129))/gi, '');
+            if (!barcode) return '';
             
-            // Remover espacios adicionales al inicio y final
+            let cleanCode = String(barcode);
+            cleanCode = cleanCode.replace(/([\s+]code\s*(39|128|129))/gi, '');
+            cleanCode = cleanCode.replace(/[^\w\-]/g, '');
             return cleanCode.trim();
         }
         
-        // Función para procesar la asistencia
+        // Función para procesar la asistencia - CORREGIDA
         function processBarcodeAttendance(barcodeCode) {
-            // Limpiar el código antes de enviarlo
             const cleanedCode = cleanBarcodeInput(barcodeCode);
             
-            // Agregar logs para debugging
+            if (!cleanedCode || cleanedCode.length < 3) {
+                showError('El código de barras debe tener al menos 3 caracteres');
+                return;
+            }
+            
             console.log('Código original:', barcodeCode);
             console.log('Código limpio:', cleanedCode);
             console.log('Schedule ID:', scheduleId);
+            console.log('URL:', registerUrl);
             
-            fetch('{{ route("attendance.register-by-barcode") }}', {
+            fetch(registerUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -379,11 +381,30 @@
             .then(response => {
                 console.log('Response status:', response.status);
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                return response.json();
+                return response.text().then(text => {
+                    console.log('Response text:', text);
+                    
+                    if (!response.ok) {
+                        if (response.status === 500) {
+                            throw new Error(`Error del servidor (500): ${text.substring(0, 200)}...`);
+                        } else if (response.status === 404) {
+                            throw new Error('Ruta no encontrada (404). Verifica que la ruta esté definida.');
+                        } else if (response.status === 422) {
+                            throw new Error('Error de validación (422). Verifica los datos enviados.');
+                        } else if (response.status === 419) {
+                            throw new Error('Token CSRF expirado (419). Recarga la página.');
+                        } else {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                    }
+                    
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('Error al parsear JSON:', e);
+                        throw new Error('Respuesta del servidor no es JSON válido');
+                    }
+                });
             })
             .then(data => {
                 console.log('Response data:', data);
@@ -396,7 +417,6 @@
                     showError(data.message || 'Error al procesar el código de barras');
                 }
                 
-                // Reanudar el escáner después de 3 segundos
                 setTimeout(() => {
                     if (stopScannerBtn.style.display !== 'none') {
                         startScanner();
@@ -405,23 +425,8 @@
             })
             .catch(error => {
                 console.error('Fetch error:', error);
+                showError(error.message || 'Error de conexión desconocido');
                 
-                // Mostrar error más específico
-                let errorMessage = 'Error de conexión. ';
-                
-                if (error.message.includes('404')) {
-                    errorMessage += 'Ruta no encontrada. Verifica la configuración de rutas.';
-                } else if (error.message.includes('500')) {
-                    errorMessage += 'Error del servidor. Verifica el controlador.';
-                } else if (error.message.includes('CSRF')) {
-                    errorMessage += 'Token CSRF inválido. Recarga la página.';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                showError(errorMessage);
-                
-                // Reanudar el escáner después de 3 segundos
                 setTimeout(() => {
                     if (stopScannerBtn.style.display !== 'none') {
                         startScanner();
@@ -468,15 +473,17 @@
             `;
         }
         
-        // Función para mostrar error
+        // Función para mostrar error - MEJORADA
         function showError(message) {
+            const now = new Date().toLocaleTimeString();
+            
             resultDiv.innerHTML = `
                 <div class="alert alert-danger border-0">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-exclamation-triangle fa-lg me-3 text-danger"></i>
                         <div>
-                            <h6 class="mb-1 text-danger">Error</h6>
-                            <p class="mb-0 text-dark">${message}</p>
+                            <h6 class="mb-1 text-danger">Error (${now})</h6>
+                            <p class="mb-1 text-dark">${message}</p>
                         </div>
                     </div>
                 </div>
@@ -485,14 +492,13 @@
         
         // Función para añadir a la lista de asistencia
         function addToAttendanceList(data) {
-            // Remover mensaje de "no hay asistencias" si existe
             const noAttendanceMsg = document.getElementById('no-attendance-message');
             if (noAttendanceMsg) {
                 noAttendanceMsg.remove();
             }
             
             const now = new Date();
-            const timeStr = now.toLocaleTimeString();
+            const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             const statusClass = data.status === 'present' ? 'success' : 'warning';
             const iconClass = data.status === 'present' ? 'fa-check' : 'fa-clock';
             const statusText = data.status === 'present' ? 'Presente' : 'Tardanza';
@@ -523,7 +529,6 @@
             
             attendanceListDiv.insertAdjacentHTML('afterbegin', newAttendanceHtml);
             
-            // Remover la animación después de 3 segundos
             setTimeout(() => {
                 const newItem = attendanceListDiv.querySelector('.pulse-animation');
                 if (newItem) {
@@ -545,7 +550,7 @@
         
         // Entrada manual de código de barras
         submitManualBtn.addEventListener('click', function() {
-            const barcodeValue = cleanBarcodeInput(manualBarcodeInput.value.trim());
+            const barcodeValue = manualBarcodeInput.value.trim();
             if (barcodeValue) {
                 showProcessing();
                 processBarcodeAttendance(barcodeValue);
@@ -558,46 +563,48 @@
         // Permitir envío con Enter en el campo manual
         manualBarcodeInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 submitManualBtn.click();
             }
         });
         
-        // Mantener el foco en el campo manual (mejorado)
-        setInterval(() => {
-            if (document.activeElement !== manualBarcodeInput && 
-                !document.querySelector('video') &&
-                manualBarcodeInput.value === '') {
-                manualBarcodeInput.focus();
-            }
-        }, 2000);
+        // Mantener el foco en el campo manual para lectores externos
+        manualBarcodeInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                if (!document.querySelector('video') && manualBarcodeInput.value === '') {
+                    manualBarcodeInput.focus();
+                }
+            }, 100);
+        });
         
-        // Limpiar resultados después de 15 segundos
+        // Limpiar resultados después de 10 segundos
         let clearResultsTimeout;
         function scheduleResultsClear() {
             clearTimeout(clearResultsTimeout);
             clearResultsTimeout = setTimeout(() => {
-                if (resultDiv.innerHTML.trim() !== '' && manualBarcodeInput.value.trim() === '') {
+                if (resultDiv.innerHTML.trim() !== '') {
                     resultDiv.innerHTML = '';
                 }
-            }, 15000);
+            }, 10000);
         }
         
-        // Programar limpieza cuando sea necesario
-        const originalShowSuccess = showSuccess;
-        const originalShowError = showError;
+        // Programar limpieza cuando se muestren resultados
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && resultDiv.innerHTML.trim() !== '') {
+                    scheduleResultsClear();
+                }
+            });
+        });
         
-        showSuccess = function(data) {
-            originalShowSuccess(data);
-            scheduleResultsClear();
-        };
-        
-        showError = function(message) {
-            originalShowError(message);
-            scheduleResultsClear();
-        };
+        observer.observe(resultDiv, { childList: true });
         
         // Inicializar
         manualBarcodeInput.focus();
+        
+        console.log('Sistema inicializado correctamente');
+        console.log('Schedule ID:', scheduleId);
+        console.log('Register URL:', registerUrl);
     });
 </script>
 @endpush

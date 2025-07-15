@@ -113,11 +113,11 @@ class AttendanceController extends Controller
             Log::info('Horario encontrado', [
                 'schedule_id' => $schedule->id,
                 'course_id' => $schedule->course_id,
-                'course_name' => $schedule->course->name
+                'course_name' => $schedule->course->name,
+                'start_time' => $schedule->start_time
             ]);
 
             // Verificar que el estudiante esté matriculado en el curso
-            // CORREGIDO: No usar semester del schedule, sino verificar en course_student
             $isEnrolled = DB::table('course_student')
                 ->where('course_id', $schedule->course_id)
                 ->where('student_id', $student->id)
@@ -155,20 +155,49 @@ class AttendanceController extends Controller
                 ], 400);
             }
 
-            // Determinar el estado de la asistencia
-            $startTime = Carbon::createFromFormat('H:i:s', $schedule->start_time);
-            $lateThreshold = $startTime->copy()->addMinutes(15); // 15 minutos de tolerancia
-
-            // Comparar solo la hora, no la fecha
-            $currentTimeOnly = Carbon::createFromFormat('H:i:s', $currentTime->format('H:i:s'));
-            $status = $currentTimeOnly->lte($lateThreshold) ? 'present' : 'late';
-
-            Log::info('Determinando estado de asistencia', [
-                'start_time' => $startTime->format('H:i:s'),
-                'current_time' => $currentTimeOnly->format('H:i:s'),
-                'late_threshold' => $lateThreshold->format('H:i:s'),
-                'status' => $status
-            ]);
+            // CORREGIDO: Determinar el estado de la asistencia sin problemas de formato
+            $status = 'present'; // Por defecto presente
+            
+            try {
+                // Asegurarnos de que start_time esté en formato correcto
+                $startTimeStr = $schedule->start_time;
+                
+                // Si start_time viene como DateTime, convertirlo a string
+                if ($startTimeStr instanceof \DateTime) {
+                    $startTimeStr = $startTimeStr->format('H:i:s');
+                }
+                
+                Log::info('Procesando horarios', [
+                    'start_time_raw' => $schedule->start_time,
+                    'start_time_str' => $startTimeStr,
+                    'current_time' => $currentTime->format('H:i:s')
+                ]);
+                
+                // Crear objetos Carbon para comparar solo la hora
+                $startTime = Carbon::createFromFormat('H:i:s', $startTimeStr);
+                $lateThreshold = $startTime->copy()->addMinutes(15);
+                $currentTimeOnly = Carbon::createFromFormat('H:i:s', $currentTime->format('H:i:s'));
+                
+                // Determinar si es tardanza (más de 15 minutos después del inicio)
+                if ($currentTimeOnly->gt($lateThreshold)) {
+                    $status = 'late';
+                }
+                
+                Log::info('Determinando estado de asistencia', [
+                    'start_time' => $startTime->format('H:i:s'),
+                    'current_time' => $currentTimeOnly->format('H:i:s'),
+                    'late_threshold' => $lateThreshold->format('H:i:s'),
+                    'status' => $status
+                ]);
+                
+            } catch (\Exception $timeError) {
+                Log::warning('Error procesando horarios, usando presente por defecto', [
+                    'error' => $timeError->getMessage(),
+                    'start_time' => $schedule->start_time
+                ]);
+                // Si hay error con el tiempo, marcamos como presente por defecto
+                $status = 'present';
+            }
 
             // Registrar la asistencia
             $attendance = Attendance::create([
