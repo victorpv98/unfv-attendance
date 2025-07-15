@@ -75,19 +75,3 @@
         </div>
     </div>
 </div>
-
-<div class="row">
-    <!-- Gráfico de Asistencias -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow border-0">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title fw-semibold mb-0">Asistencias por Escuela</h5>
-            </div>
-            <div class="card-body p-4">
-                <div style="height: 250px;">
-                    <canvas id="facultyAttendanceChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>

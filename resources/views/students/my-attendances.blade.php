@@ -116,7 +116,7 @@
                                     <small class="text-muted">{{ \Carbon\Carbon::parse($attendance->date)->locale('es')->isoFormat('dddd') }}</small>
                                 </td>
                                 <td class="py-3">
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $attendance->time }}</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $loop->iteration }}</span>
                                 </td>
                                 <td class="py-3">
                                     <strong class="text-dark">{{ $attendance->schedule->course->name }}</strong>

@@ -67,7 +67,7 @@
                         @forelse($faculties as $faculty)
                             <tr class="border-bottom">
                                 <td class="py-3">
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $faculty->id }}</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $loop->iteration }}</span>
                                 </td>
                                 <td class="fw-medium py-3">
                                     <div class="d-flex align-items-center">
@@ -76,7 +76,7 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold">{{ $faculty->name }}</div>
-                                            <small class="text-muted">Escuela UNFV</small>
+                                            <small class="text-muted">FIEI</small>
                                         </div>
                                     </div>
                                 </td>

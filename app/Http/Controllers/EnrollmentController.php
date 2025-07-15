@@ -12,9 +12,9 @@ class EnrollmentController extends Controller
     /**
      * Mostrar el listado de matrículas
      */
-    public function index()
+    public function index(Request $request)
     {
-        $enrollments = DB::table('course_student')
+        $query = DB::table('course_student')
             ->join('courses', 'course_student.course_id', '=', 'courses.id')
             ->join('students', 'course_student.student_id', '=', 'students.id')
             ->join('users', 'students.user_id', '=', 'users.id')
@@ -26,11 +26,29 @@ class EnrollmentController extends Controller
                 'students.code as student_code',
                 'course_student.semester',
                 'course_student.created_at'
-            )
-            ->orderBy('course_student.created_at', 'desc')
-            ->paginate(15);
+            );
 
-        return view('admin.enrollments.index', compact('enrollments'));
+        if ($request->filled('student_id')) {
+            $query->where('students.id', $request->student_id);
+        }
+
+        if ($request->filled('course_id')) {
+            $query->where('courses.id', $request->course_id);
+        }
+
+        if ($request->filled('semester')) {
+            $query->where('course_student.semester', $request->semester);
+        }
+
+        $enrollments = $query->orderBy('course_student.created_at', 'desc')->paginate(15);
+        $enrollments->appends($request->all());
+
+        // Para los selects
+        $courses = \App\Models\Course::orderBy('name')->get();
+        $students = \App\Models\Student::with('user')->get();
+        $semesters = DB::table('course_student')->distinct()->pluck('semester');
+
+        return view('admin.enrollments.index', compact('enrollments', 'courses', 'students', 'semesters'));
     }
 
     /**
@@ -107,11 +125,16 @@ class EnrollmentController extends Controller
      */
     public function byCourse()
     {
-        $courses = Course::withCount(['students' => function($query) {
-            $query->where('semester', date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II'));
-        }])->orderBy('name')->paginate(15);
-        
-        return view('admin.enrollments.by_course', compact('courses'));
+        $currentSemester = date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II');
+
+        $courses = Course::with('faculty')
+            ->withCount(['students as students_count' => function ($query) use ($currentSemester) {
+                $query->where('course_student.semester', $currentSemester);
+            }])
+            ->orderBy('name')
+            ->paginate(15);
+
+        return view('admin.enrollments.by_course', compact('courses', 'currentSemester'));
     }
 
     /**
@@ -119,12 +142,12 @@ class EnrollmentController extends Controller
      */
     public function byStudent()
     {
-        $students = Student::with(['user', 'courses' => function($query) {
-            $query->where('semester', date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II'));
-        }])->withCount(['courses' => function($query) {
-            $query->where('semester', date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II'));
+        $currentSemester = date('Y') . '-' . (date('n') <= 6 ? 'I' : 'II');
+
+        $students = Student::with(['user', 'courses' => function($query) use ($currentSemester) {
+            $query->wherePivot('semester', $currentSemester);
         }])->paginate(15);
-        
-        return view('admin.enrollments.by_student', compact('students'));
+
+        return view('admin.enrollments.by_student', compact('students', 'currentSemester'));
     }
 }
